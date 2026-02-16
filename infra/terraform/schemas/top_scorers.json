@@ -1,0 +1,17 @@
+[
+  {"name": "player_id", "type": "INTEGER", "mode": "REQUIRED"},
+  {"name": "player_name", "type": "STRING"},
+  {"name": "nationality", "type": "STRING"},
+  {"name": "position", "type": "STRING"},
+  {"name": "date_of_birth", "type": "STRING"},
+  {"name": "team_id", "type": "INTEGER"},
+  {"name": "team_name", "type": "STRING"},
+  {"name": "played_matches", "type": "INTEGER"},
+  {"name": "goals", "type": "INTEGER"},
+  {"name": "assists", "type": "INTEGER"},
+  {"name": "penalties", "type": "INTEGER"},
+  {"name": "season_start", "type": "STRING"},
+  {"name": "matchday", "type": "INTEGER"},
+  {"name": "raw_json", "type": "STRING"},
+  {"name": "ingested_at", "type": "TIMESTAMP", "mode": "REQUIRED"}
+]

@@ -1,0 +1,15 @@
+[
+  {"name": "match_id", "type": "INTEGER", "mode": "REQUIRED"},
+  {"name": "matchday", "type": "INTEGER"},
+  {"name": "status", "type": "STRING"},
+  {"name": "utc_date", "type": "STRING"},
+  {"name": "home_team_id", "type": "INTEGER"},
+  {"name": "home_team_name", "type": "STRING"},
+  {"name": "away_team_id", "type": "INTEGER"},
+  {"name": "away_team_name", "type": "STRING"},
+  {"name": "home_score", "type": "INTEGER"},
+  {"name": "away_score", "type": "INTEGER"},
+  {"name": "winner", "type": "STRING"},
+  {"name": "raw_json", "type": "STRING"},
+  {"name": "ingested_at", "type": "TIMESTAMP", "mode": "REQUIRED"}
+]

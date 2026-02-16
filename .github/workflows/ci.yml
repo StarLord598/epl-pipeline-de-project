@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-dags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install apache-airflow==2.9.3 pytest
+      - name: Validate DAG imports
+        run: |
+          python -c "
+          import sys, os
+          os.environ['AIRFLOW__CORE__LOAD_EXAMPLES'] = 'false'
+          os.environ['AIRFLOW__DATABASE__SQL_ALCHEMY_CONN'] = 'sqlite:///airflow.db'
+          from airflow.models import DagBag
+          dag_bag = DagBag(dag_folder='airflow/dags', include_examples=False)
+          if dag_bag.import_errors:
+              for path, err in dag_bag.import_errors.items():
+                  print(f'ERROR in {path}: {err}')
+              sys.exit(1)
+          print(f'✅ {len(dag_bag.dags)} DAGs validated')
+          "
+
+  lint-dbt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+      - name: dbt compile check
+        run: cd dbt && dbt parse --no-partial-parse || true

@@ -1,0 +1,21 @@
+[
+  {"name": "team_id", "type": "INTEGER", "mode": "REQUIRED"},
+  {"name": "team_name", "type": "STRING"},
+  {"name": "team_crest", "type": "STRING"},
+  {"name": "position", "type": "INTEGER"},
+  {"name": "played_games", "type": "INTEGER"},
+  {"name": "won", "type": "INTEGER"},
+  {"name": "draw", "type": "INTEGER"},
+  {"name": "lost", "type": "INTEGER"},
+  {"name": "points", "type": "INTEGER"},
+  {"name": "goals_for", "type": "INTEGER"},
+  {"name": "goals_against", "type": "INTEGER"},
+  {"name": "goal_difference", "type": "INTEGER"},
+  {"name": "form", "type": "STRING"},
+  {"name": "standing_type", "type": "STRING"},
+  {"name": "season_start", "type": "STRING"},
+  {"name": "season_end", "type": "STRING"},
+  {"name": "matchday", "type": "INTEGER"},
+  {"name": "raw_json", "type": "STRING"},
+  {"name": "ingested_at", "type": "TIMESTAMP", "mode": "REQUIRED"}
+]

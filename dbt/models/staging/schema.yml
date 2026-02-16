@@ -1,0 +1,33 @@
+version: 2
+
+sources:
+  - name: epl_raw
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: epl_raw
+    tables:
+      - name: fixtures
+      - name: standings
+      - name: top_scorers
+
+models:
+  - name: stg_fixtures
+    description: Deduplicated EPL fixtures with latest status
+    columns:
+      - name: match_id
+        tests: [unique, not_null]
+      - name: status
+        tests: [not_null]
+
+  - name: stg_standings
+    description: Current EPL standings (TOTAL type only)
+    columns:
+      - name: team_id
+        tests: [unique, not_null]
+      - name: position
+        tests: [not_null]
+
+  - name: stg_top_scorers
+    description: Current top scorers deduplicated by player
+    columns:
+      - name: player_id
+        tests: [unique, not_null]
