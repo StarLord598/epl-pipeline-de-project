@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: mart_league_table
-    description: EPL league table with calculated metrics
+    description: EPL league table with calculated metrics for dashboard
     columns:
       - name: team_id
         tests: [unique, not_null]
@@ -12,13 +12,15 @@ models:
         tests: [not_null]
 
   - name: mart_top_scorers
-    description: EPL top scorers with per-game stats
+    description: EPL top scorers with per-game stats and ranking
     columns:
       - name: player_id
         tests: [unique, not_null]
+      - name: rank
+        tests: [not_null]
 
   - name: mart_recent_results
-    description: Recent and upcoming EPL fixtures
+    description: EPL match results with derived home/away result
     columns:
       - name: match_id
         tests: [unique, not_null]

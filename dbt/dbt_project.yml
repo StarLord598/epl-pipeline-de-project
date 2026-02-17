@@ -14,7 +14,7 @@ models:
   epl_pipeline:
     staging:
       +materialized: view
-      +schema: epl_staging
+      +schema: staging
     mart:
       +materialized: table
-      +schema: epl_mart
+      +schema: mart

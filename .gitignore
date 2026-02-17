@@ -6,6 +6,12 @@ keys/
 __pycache__/
 *.pyc
 .venv/
+venv/
+venv313/
+
+# Data (large files)
+data/epl_pipeline.duckdb
+data/json/match_events/
 
 # Airflow
 airflow/logs/

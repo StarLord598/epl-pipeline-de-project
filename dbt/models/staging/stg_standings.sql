@@ -1,29 +1,51 @@
-with ranked as (
+-- EPL Standings derived from match results
+-- Aggregates all home/away results per team
+
+with all_results as (
+    -- Home results
     select
-        *,
-        row_number() over (
-            partition by team_id, standing_type
-            order by ingested_at desc
-        ) as rn
-    from {{ source('epl_raw', 'standings') }}
+        home_team_id  as team_id,
+        home_team_name as team_name,
+        home_score as gf,
+        away_score as ga,
+        case when home_score > away_score then 3
+             when home_score = away_score then 1
+             else 0 end as pts,
+        case when home_score > away_score then 1 else 0 end as won,
+        case when home_score = away_score then 1 else 0 end as drawn,
+        case when home_score < away_score then 1 else 0 end as lost
+    from {{ ref('stg_matches') }}
+    where home_score is not null
+
+    union all
+
+    -- Away results
+    select
+        away_team_id  as team_id,
+        away_team_name as team_name,
+        away_score as gf,
+        home_score as ga,
+        case when away_score > home_score then 3
+             when away_score = home_score then 1
+             else 0 end as pts,
+        case when away_score > home_score then 1 else 0 end as won,
+        case when away_score = home_score then 1 else 0 end as drawn,
+        case when away_score < home_score then 1 else 0 end as lost
+    from {{ ref('stg_matches') }}
+    where away_score is not null
 )
 
 select
     team_id,
     team_name,
-    team_crest,
-    position,
-    played_games,
-    won,
-    draw,
-    lost,
-    points,
-    goals_for,
-    goals_against,
-    goal_difference,
-    form,
-    standing_type,
-    matchday,
-    cast(ingested_at as timestamp) as ingested_at
-from ranked
-where rn = 1 and standing_type = 'TOTAL'
+    count(*)     as played,
+    sum(won)     as won,
+    sum(drawn)   as drawn,
+    sum(lost)    as lost,
+    sum(pts)     as points,
+    sum(gf)      as goals_for,
+    sum(ga)      as goals_against,
+    sum(gf) - sum(ga) as goal_difference
+from all_results
+group by team_id, team_name
+order by points desc, goal_difference desc, goals_for desc

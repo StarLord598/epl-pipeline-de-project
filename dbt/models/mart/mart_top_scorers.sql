@@ -1,26 +1,19 @@
--- Gold layer: Top scorers with per-game metrics
+-- Gold layer: Top scorers with ranking and per-game stats
 
 select
-    ts.player_id,
-    ts.player_name,
-    ts.nationality,
-    ts.position,
-    ts.date_of_birth,
-    ts.team_id,
-    ts.team_name,
-    ts.played_matches,
-    ts.goals,
-    ts.assists,
-    ts.penalties,
+    row_number() over (
+        order by s.goals desc, s.assists desc
+    ) as rank,
+    s.player_id,
+    s.player_name,
+    s.team_name,
+    s.goals,
+    s.assists,
+    s.goal_contributions,
+    s.matches_played,
+    s.goals_per_game,
+    round(cast(s.assists as double) / nullif(s.matches_played, 0), 2) as assists_per_game
 
-    -- Calculated metrics
-    round(safe_divide(ts.goals, ts.played_matches), 2) as goals_per_game,
-    round(safe_divide(ts.assists, ts.played_matches), 2) as assists_per_game,
-    coalesce(ts.goals, 0) + coalesce(ts.assists, 0) as goal_contributions,
-    ts.goals - coalesce(ts.penalties, 0) as non_penalty_goals,
-    ts.matchday,
-    ts.ingested_at
-
-from {{ ref('stg_top_scorers') }} ts
-where ts.goals > 0
-order by ts.goals desc, ts.assists desc
+from {{ ref('stg_top_scorers') }} s
+order by s.goals desc, s.assists desc
+limit 30

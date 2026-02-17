@@ -1,35 +1,32 @@
--- Gold layer: Recent and upcoming fixtures for dashboard
+-- Gold layer: Match results ready for dashboard
+-- Includes derived result for home/away teams
 
 select
-    f.match_id,
-    f.matchday,
-    f.status,
-    f.kick_off_utc,
-    f.home_team_id,
-    f.home_team_name,
-    f.away_team_id,
-    f.away_team_name,
-    f.home_score,
-    f.away_score,
-    f.winner,
+    m.match_id,
+    m.matchday,
+    m.match_date,
+    m.home_team_id,
+    m.home_team_name,
+    m.away_team_id,
+    m.away_team_name,
+    m.home_score,
+    m.away_score,
+    m.winner,
+    m.match_status,
 
-    -- Enrichment
-    case
-        when f.status = 'FINISHED' then concat(
-            cast(f.home_score as string), ' - ', cast(f.away_score as string)
-        )
-        when f.status = 'IN_PLAY' then 'LIVE'
-        when f.status = 'TIMED' then 'Upcoming'
-        else f.status
-    end as display_status,
+    -- Home team result
+    case when m.winner = 'HOME_TEAM' then 'W'
+         when m.winner = 'DRAW'      then 'D'
+         when m.winner = 'AWAY_TEAM' then 'L'
+         else null
+    end as home_result,
 
-    hs.team_crest as home_crest,
-    aws.team_crest as away_crest,
+    -- Away team result
+    case when m.winner = 'AWAY_TEAM' then 'W'
+         when m.winner = 'DRAW'      then 'D'
+         when m.winner = 'HOME_TEAM' then 'L'
+         else null
+    end as away_result
 
-    f.ingested_at
-
-from {{ ref('stg_fixtures') }} f
-left join {{ ref('stg_standings') }} hs on f.home_team_id = hs.team_id
-left join {{ ref('stg_standings') }} aws on f.away_team_id = aws.team_id
-where f.kick_off_utc >= timestamp_sub(current_timestamp(), interval 14 day)
-order by f.kick_off_utc desc
+from {{ ref('stg_matches') }} m
+order by m.match_date desc, m.matchday desc
