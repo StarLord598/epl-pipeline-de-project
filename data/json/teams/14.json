@@ -2,7 +2,7 @@
   "team_id": 14,
   "team_name": "Crystal Palace",
   "standings": {
-    "position": 10,
+    "position": 11,
     "team_id": 14,
     "team_name": "Crystal Palace",
     "played": 38,
@@ -18,12 +18,11 @@
     "goals_per_game": 1.5,
     "goals_conceded_per_game": 1.53
   },
-  "form": "D,L,W,L,W,W,D,W,W,W",
   "matches": [
     {
       "match_id": 10376,
       "matchday": 28,
-      "match_date": "2024-05-19T00:00:00.000",
+      "match_date": "2024-05-19 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 4,
@@ -38,7 +37,7 @@
     {
       "match_id": 10364,
       "matchday": 27,
-      "match_date": "2024-05-11T00:00:00.000",
+      "match_date": "2024-05-11 00:00:00",
       "home_team_id": 11,
       "home_team_name": "Wolverhampton Wanderers",
       "away_team_id": 14,
@@ -53,7 +52,7 @@
     {
       "match_id": 10357,
       "matchday": 26,
-      "match_date": "2024-05-06T00:00:00.000",
+      "match_date": "2024-05-06 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 8,
@@ -68,7 +67,7 @@
     {
       "match_id": 10338,
       "matchday": 25,
-      "match_date": "2024-04-27T00:00:00.000",
+      "match_date": "2024-04-27 00:00:00",
       "home_team_id": 12,
       "home_team_name": "Fulham",
       "away_team_id": 14,
@@ -83,7 +82,7 @@
     {
       "match_id": 10333,
       "matchday": 25,
-      "match_date": "2024-04-24T00:00:00.000",
+      "match_date": "2024-04-24 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 7,
@@ -98,7 +97,7 @@
     {
       "match_id": 10329,
       "matchday": 25,
-      "match_date": "2024-04-21T00:00:00.000",
+      "match_date": "2024-04-21 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 9,
@@ -113,7 +112,7 @@
     {
       "match_id": 10320,
       "matchday": 24,
-      "match_date": "2024-04-14T00:00:00.000",
+      "match_date": "2024-04-14 00:00:00",
       "home_team_id": 3,
       "home_team_name": "Liverpool",
       "away_team_id": 14,
@@ -128,7 +127,7 @@
     {
       "match_id": 10304,
       "matchday": 23,
-      "match_date": "2024-04-06T00:00:00.000",
+      "match_date": "2024-04-06 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 1,
@@ -143,7 +142,7 @@
     {
       "match_id": 10296,
       "matchday": 23,
-      "match_date": "2024-04-02T00:00:00.000",
+      "match_date": "2024-04-02 00:00:00",
       "home_team_id": 20,
       "home_team_name": "Bournemouth",
       "away_team_id": 14,
@@ -158,7 +157,7 @@
     {
       "match_id": 10287,
       "matchday": 23,
-      "match_date": "2024-03-30T00:00:00.000",
+      "match_date": "2024-03-30 00:00:00",
       "home_team_id": 15,
       "home_team_name": "Nottingham Forest",
       "away_team_id": 14,
@@ -173,7 +172,7 @@
     {
       "match_id": 10271,
       "matchday": 22,
-      "match_date": "2024-03-09T00:00:00.000",
+      "match_date": "2024-03-09 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 17,
@@ -188,7 +187,7 @@
     {
       "match_id": 10264,
       "matchday": 21,
-      "match_date": "2024-03-02T00:00:00.000",
+      "match_date": "2024-03-02 00:00:00",
       "home_team_id": 5,
       "home_team_name": "Tottenham Hotspur",
       "away_team_id": 14,
@@ -203,7 +202,7 @@
     {
       "match_id": 10253,
       "matchday": 20,
-      "match_date": "2024-02-24T00:00:00.000",
+      "match_date": "2024-02-24 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 18,
@@ -218,7 +217,7 @@
     {
       "match_id": 10248,
       "matchday": 20,
-      "match_date": "2024-02-19T00:00:00.000",
+      "match_date": "2024-02-19 00:00:00",
       "home_team_id": 16,
       "home_team_name": "Everton",
       "away_team_id": 14,
@@ -233,7 +232,7 @@
     {
       "match_id": 10238,
       "matchday": 19,
-      "match_date": "2024-02-12T00:00:00.000",
+      "match_date": "2024-02-12 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 6,
@@ -248,7 +247,7 @@
     {
       "match_id": 10220,
       "matchday": 18,
-      "match_date": "2024-02-03T00:00:00.000",
+      "match_date": "2024-02-03 00:00:00",
       "home_team_id": 10,
       "home_team_name": "Brighton & Hove Albion",
       "away_team_id": 14,
@@ -263,7 +262,7 @@
     {
       "match_id": 10212,
       "matchday": 18,
-      "match_date": "2024-01-30T00:00:00.000",
+      "match_date": "2024-01-30 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 19,
@@ -278,7 +277,7 @@
     {
       "match_id": 10204,
       "matchday": 17,
-      "match_date": "2024-01-20T00:00:00.000",
+      "match_date": "2024-01-20 00:00:00",
       "home_team_id": 2,
       "home_team_name": "Arsenal",
       "away_team_id": 14,
@@ -293,7 +292,7 @@
     {
       "match_id": 10191,
       "matchday": 16,
-      "match_date": "2023-12-30T00:00:00.000",
+      "match_date": "2023-12-30 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 13,
@@ -308,7 +307,7 @@
     {
       "match_id": 10185,
       "matchday": 16,
-      "match_date": "2023-12-27T00:00:00.000",
+      "match_date": "2023-12-27 00:00:00",
       "home_team_id": 6,
       "home_team_name": "Chelsea",
       "away_team_id": 14,
@@ -323,7 +322,7 @@
     {
       "match_id": 10170,
       "matchday": 16,
-      "match_date": "2023-12-21T00:00:00.000",
+      "match_date": "2023-12-21 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 10,
@@ -338,7 +337,7 @@
     {
       "match_id": 10163,
       "matchday": 15,
-      "match_date": "2023-12-16T00:00:00.000",
+      "match_date": "2023-12-16 00:00:00",
       "home_team_id": 1,
       "home_team_name": "Manchester City",
       "away_team_id": 14,
@@ -353,7 +352,7 @@
     {
       "match_id": 10151,
       "matchday": 14,
-      "match_date": "2023-12-09T00:00:00.000",
+      "match_date": "2023-12-09 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 3,
@@ -368,7 +367,7 @@
     {
       "match_id": 10144,
       "matchday": 14,
-      "match_date": "2023-12-06T00:00:00.000",
+      "match_date": "2023-12-06 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 20,
@@ -383,7 +382,7 @@
     {
       "match_id": 10139,
       "matchday": 14,
-      "match_date": "2023-12-03T00:00:00.000",
+      "match_date": "2023-12-03 00:00:00",
       "home_team_id": 9,
       "home_team_name": "West Ham United",
       "away_team_id": 14,
@@ -398,7 +397,7 @@
     {
       "match_id": 10123,
       "matchday": 13,
-      "match_date": "2023-11-25T00:00:00.000",
+      "match_date": "2023-11-25 00:00:00",
       "home_team_id": 17,
       "home_team_name": "Luton Town",
       "away_team_id": 14,
@@ -413,7 +412,7 @@
     {
       "match_id": 10113,
       "matchday": 12,
-      "match_date": "2023-11-11T00:00:00.000",
+      "match_date": "2023-11-11 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 16,
@@ -428,7 +427,7 @@
     {
       "match_id": 10103,
       "matchday": 11,
-      "match_date": "2023-11-04T00:00:00.000",
+      "match_date": "2023-11-04 00:00:00",
       "home_team_id": 18,
       "home_team_name": "Burnley",
       "away_team_id": 14,
@@ -443,7 +442,7 @@
     {
       "match_id": 10091,
       "matchday": 10,
-      "match_date": "2023-10-27T00:00:00.000",
+      "match_date": "2023-10-27 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 5,
@@ -458,7 +457,7 @@
     {
       "match_id": 10085,
       "matchday": 9,
-      "match_date": "2023-10-21T00:00:00.000",
+      "match_date": "2023-10-21 00:00:00",
       "home_team_id": 7,
       "home_team_name": "Newcastle United",
       "away_team_id": 14,
@@ -473,7 +472,7 @@
     {
       "match_id": 10076,
       "matchday": 8,
-      "match_date": "2023-10-07T00:00:00.000",
+      "match_date": "2023-10-07 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 15,
@@ -488,7 +487,7 @@
     {
       "match_id": 10063,
       "matchday": 7,
-      "match_date": "2023-09-30T00:00:00.000",
+      "match_date": "2023-09-30 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 14,
@@ -503,7 +502,7 @@
     {
       "match_id": 10050,
       "matchday": 6,
-      "match_date": "2023-09-23T00:00:00.000",
+      "match_date": "2023-09-23 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 12,
@@ -518,7 +517,7 @@
     {
       "match_id": 10041,
       "matchday": 5,
-      "match_date": "2023-09-16T00:00:00.000",
+      "match_date": "2023-09-16 00:00:00",
       "home_team_id": 4,
       "home_team_name": "Aston Villa",
       "away_team_id": 14,
@@ -533,7 +532,7 @@
     {
       "match_id": 10037,
       "matchday": 4,
-      "match_date": "2023-09-03T00:00:00.000",
+      "match_date": "2023-09-03 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 11,
@@ -548,7 +547,7 @@
     {
       "match_id": 10023,
       "matchday": 3,
-      "match_date": "2023-08-26T00:00:00.000",
+      "match_date": "2023-08-26 00:00:00",
       "home_team_id": 13,
       "home_team_name": "Brentford",
       "away_team_id": 14,
@@ -563,7 +562,7 @@
     {
       "match_id": 10019,
       "matchday": 2,
-      "match_date": "2023-08-21T00:00:00.000",
+      "match_date": "2023-08-21 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 2,
@@ -578,7 +577,7 @@
     {
       "match_id": 10006,
       "matchday": 1,
-      "match_date": "2023-08-12T00:00:00.000",
+      "match_date": "2023-08-12 00:00:00",
       "home_team_id": 19,
       "home_team_name": "Sheffield United",
       "away_team_id": 14,
@@ -589,32 +588,6 @@
       "match_status": "available",
       "home_result": "L",
       "away_result": "W"
-    }
-  ],
-  "scorers": [
-    {
-      "rank": 28,
-      "player_id": 50028,
-      "player_name": "Jean-Philippe Mateta",
-      "team_name": "Crystal Palace",
-      "goals": 16,
-      "assists": 4,
-      "goal_contributions": 20,
-      "matches_played": 35,
-      "goals_per_game": 0.46,
-      "assists_per_game": 0.11
-    },
-    {
-      "rank": 16,
-      "player_id": 50016,
-      "player_name": "Eberechi Eze",
-      "team_name": "Crystal Palace",
-      "goals": 11,
-      "assists": 4,
-      "goal_contributions": 15,
-      "matches_played": 34,
-      "goals_per_game": 0.32,
-      "assists_per_game": 0.12
     }
   ]
 }

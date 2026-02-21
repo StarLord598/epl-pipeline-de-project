@@ -22,7 +22,11 @@ try:
 except ImportError:
     AIRFLOW_AVAILABLE = False
 
-REPO_ROOT = Path(__file__).parent.parent.parent
+# In Docker: dags are at /opt/airflow/dags, repo root is /opt/airflow
+# Locally: dags are at <repo>/airflow/dags, repo root is <repo> (2 levels up)
+_DAG_DIR = Path(__file__).parent
+_CANDIDATE = _DAG_DIR.parent.parent  # local layout: airflow/dags -> airflow -> repo
+REPO_ROOT = Path("/opt/airflow") if Path("/opt/airflow/scripts").exists() else _CANDIDATE
 VENV_PYTHON = REPO_ROOT / "venv313" / "bin" / "python3"
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 
@@ -75,9 +79,13 @@ if AIRFLOW_AVAILABLE:
             env = os.environ.copy()
             env["EPL_DB_PATH"] = str(REPO_ROOT / "data" / "epl_pipeline.duckdb")
 
+            dbt_dir = str(REPO_ROOT / "dbt")
             result = subprocess.run(
-                [dbt_bin, "run", "--project-dir", str(REPO_ROOT / "dbt")],
-                capture_output=True, text=True, check=False, env=env
+                [dbt_bin, "run", "--project-dir", dbt_dir, "--profiles-dir", dbt_dir],
+                capture_output=True,
+                text=True,
+                check=False,
+                env=env,
             )
             print(result.stdout)
             if result.returncode != 0:

@@ -1,5 +1,5 @@
--- Cleaned, enriched matches from raw layer
--- Adds derived winner column and casts types
+-- stg_matches: Cleaned, enriched matches from raw layer
+-- BigQuery-compatible: uses SAFE_CAST, CASE, standard SQL
 
 with source as (
     select * from {{ source('raw', 'matches') }}
@@ -12,7 +12,12 @@ cleaned as (
         competition_name,
         season_id,
         season_name,
-        try_cast(match_date as date) as match_date,
+        {% if target.type == 'bigquery' %}
+        SAFE_CAST(match_date AS DATE) as match_date,
+        {% else %}
+        TRY_CAST(match_date AS DATE) as match_date,
+        {% endif %}
+        kick_off,
         home_team_id,
         home_team_name,
         away_team_id,

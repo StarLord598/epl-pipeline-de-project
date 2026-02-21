@@ -1,0 +1,12 @@
+[
+  {"name": "match_id",       "type": "INTEGER", "mode": "REQUIRED", "description": "Match ID"},
+  {"name": "team_id",        "type": "INTEGER", "mode": "NULLABLE", "description": "Team ID"},
+  {"name": "team_name",      "type": "STRING",  "mode": "NULLABLE", "description": "Team name"},
+  {"name": "player_id",      "type": "INTEGER", "mode": "NULLABLE", "description": "Player ID"},
+  {"name": "player_name",    "type": "STRING",  "mode": "NULLABLE", "description": "Player name"},
+  {"name": "jersey_number",  "type": "INTEGER", "mode": "NULLABLE", "description": "Jersey number"},
+  {"name": "position_id",    "type": "INTEGER", "mode": "NULLABLE", "description": "Position ID"},
+  {"name": "position_name",  "type": "STRING",  "mode": "NULLABLE", "description": "Position name"},
+  {"name": "raw_json",       "type": "JSON",    "mode": "NULLABLE", "description": "Full lineup JSON"},
+  {"name": "ingested_at",    "type": "TIMESTAMP","mode": "REQUIRED","description": "Ingestion timestamp (partition key)"}
+]

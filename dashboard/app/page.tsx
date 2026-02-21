@@ -1,25 +1,27 @@
-import { promises as fs } from "fs";
-import path from "path";
 import Link from "next/link";
-import { TeamStanding, getQualificationZone } from "@/lib/data";
+import { getLeagueTable } from "@/lib/bigquery";
+import { getQualificationZone } from "@/lib/data";
 import FormBadges from "@/components/FormBadges";
 import TeamBadge from "@/components/TeamBadge";
 
-async function getLeagueTable(): Promise<TeamStanding[]> {
-  const filePath = path.join(process.cwd(), "public", "data", "league_table.json");
-  const raw = await fs.readFile(filePath, "utf-8");
-  return JSON.parse(raw);
-}
+export const revalidate = 300; // ISR: re-fetch from BigQuery every 5 min
 
-const ZONE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  "champions-league":  { label: "Champions League", color: "#00c8ff", bg: "rgba(0,200,255,0.1)" },
-  "europa-league":     { label: "Europa League",    color: "#f97316", bg: "rgba(249,115,22,0.1)" },
-  "conference-league": { label: "Conference League",color: "#84cc16", bg: "rgba(132,204,22,0.1)" },
-  "relegation":        { label: "Relegation",       color: "#ef4444", bg: "rgba(239,68,68,0.1)" },
+const ZONE_LABELS: Record<string, { label: string; color: string }> = {
+  "champions_league":  { label: "Champions League", color: "#00c8ff" },
+  "europa_league":     { label: "Europa League",    color: "#f97316" },
+  "conference_league": { label: "Conference League",color: "#84cc16" },
+  "relegation":        { label: "Relegation",       color: "#ef4444" },
 };
 
 export default async function LeagueTablePage() {
-  const table = await getLeagueTable();
+  // ← Direct BigQuery call (with JSON fallback built-in)
+  const table = await getLeagueTable() as Array<Record<string, unknown>>;
+
+  // Derive extra stats from the live data
+  const topGoalTeam  = [...table].sort((a, b) => (b.goals_for as number) - (a.goals_for as number))[0];
+  const bestDefence  = [...table].sort((a, b) => (a.goals_against as number) - (b.goals_against as number))[0];
+  const mostWins     = [...table].sort((a, b) => (b.won as number) - (a.won as number))[0];
+  const relegated    = table.filter(t => (t.position as number) >= 18).map(t => t.team_name as string);
 
   return (
     <div>
@@ -29,19 +31,27 @@ export default async function LeagueTablePage() {
           <span className="text-3xl">🏆</span>
           <div>
             <h1 className="text-2xl font-bold text-white">Premier League Table</h1>
-            <p className="text-gray-400 text-sm">2023-24 Season · Final Standings</p>
+            <p className="text-gray-400 text-sm">2023-24 Season · Final Standings · Live from BigQuery</p>
           </div>
         </div>
       </div>
 
-      {/* Zone legend */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        {Object.entries(ZONE_LABELS).map(([key, val]) => (
-          <div key={key} className="flex items-center gap-1.5 text-xs">
-            <div className="w-3 h-3 rounded-sm" style={{ background: val.color }} />
-            <span className="text-gray-400">{val.label}</span>
-          </div>
-        ))}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap gap-3">
+          {Object.entries(ZONE_LABELS).map(([key, val]) => (
+            <div key={key} className="flex items-center gap-1.5 text-xs">
+              <div className="w-3 h-3 rounded-sm" style={{ background: val.color }} />
+              <span className="text-gray-400">{val.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <Link
+          href="/health"
+          className="text-xs text-emerald-300 hover:underline whitespace-nowrap"
+        >
+          View Pipeline Health →
+        </Link>
       </div>
 
       {/* Table */}
@@ -66,18 +76,19 @@ export default async function LeagueTablePage() {
             </thead>
             <tbody>
               {table.map((team) => {
-                const zone = getQualificationZone(team.position);
-                const zoneClass = zone ? `zone-${zone}` : "";
-                const isChampion = team.position === 1;
+                const pos  = team.position as number;
+                const zone = (team.qualification_zone as string) || getQualificationZone(pos) || "";
+                const zoneClass = zone ? `zone-${zone.replace(/_/g, "-")}` : "";
+                const isChampion = pos === 1;
 
                 return (
                   <tr
-                    key={team.team_id}
+                    key={team.team_id as number}
                     className={`border-b border-white/5 card-hover ${zoneClass} ${isChampion ? "bg-yellow-500/5" : ""}`}
                   >
                     <td className="py-3 px-4">
                       <span className={`font-bold text-sm ${isChampion ? "text-yellow-400" : "text-gray-400"}`}>
-                        {isChampion ? "🏆" : team.position}
+                        {isChampion ? "🏆" : pos}
                       </span>
                     </td>
                     <td className="py-3 px-4">
@@ -85,29 +96,29 @@ export default async function LeagueTablePage() {
                         href={`/teams/${team.team_id}`}
                         className="flex items-center gap-2 hover:text-[#00ff85] transition-colors"
                       >
-                        <TeamBadge teamName={team.team_name} size="sm" />
-                        <span className="font-medium">{team.team_name}</span>
+                        <TeamBadge teamName={team.team_name as string} size="sm" />
+                        <span className="font-medium">{team.team_name as string}</span>
                       </Link>
                     </td>
-                    <td className="text-center py-3 px-2 text-gray-300">{team.played}</td>
-                    <td className="text-center py-3 px-2 text-green-400">{team.won}</td>
-                    <td className="text-center py-3 px-2 text-gray-400">{team.drawn}</td>
-                    <td className="text-center py-3 px-2 text-red-400">{team.lost}</td>
-                    <td className="text-center py-3 px-2 text-gray-300">{team.goals_for}</td>
-                    <td className="text-center py-3 px-2 text-gray-300">{team.goals_against}</td>
+                    <td className="text-center py-3 px-2 text-gray-300">{team.played as number}</td>
+                    <td className="text-center py-3 px-2 text-green-400">{team.won as number}</td>
+                    <td className="text-center py-3 px-2 text-gray-400">{team.drawn as number}</td>
+                    <td className="text-center py-3 px-2 text-red-400">{team.lost as number}</td>
+                    <td className="text-center py-3 px-2 text-gray-300">{team.goals_for as number}</td>
+                    <td className="text-center py-3 px-2 text-gray-300">{team.goals_against as number}</td>
                     <td className="text-center py-3 px-2">
-                      <span className={team.goal_difference > 0 ? "text-green-400" : team.goal_difference < 0 ? "text-red-400" : "text-gray-400"}>
-                        {team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
+                      <span className={(team.goal_difference as number) > 0 ? "text-green-400" : (team.goal_difference as number) < 0 ? "text-red-400" : "text-gray-400"}>
+                        {(team.goal_difference as number) > 0 ? `+${team.goal_difference}` : team.goal_difference as number}
                       </span>
                     </td>
                     <td className="text-center py-3 px-2">
-                      <span className="font-bold text-white text-base">{team.points}</span>
+                      <span className="font-bold text-white text-base">{team.points as number}</span>
                     </td>
                     <td className="text-center py-3 px-2 text-gray-400 hidden md:table-cell">
-                      {team.win_rate}%
+                      {team.win_rate as number}%
                     </td>
                     <td className="text-center py-3 px-2 hidden lg:table-cell">
-                      <FormBadges form={team.form} />
+                      <FormBadges form={team.form as string | undefined} />
                     </td>
                   </tr>
                 );
@@ -117,32 +128,32 @@ export default async function LeagueTablePage() {
         </div>
       </div>
 
-      {/* Stats summary cards */}
+      {/* Dynamic stats summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <StatCard
           label="Most Goals"
-          value="Manchester City"
-          sub="96 scored"
+          value={topGoalTeam?.team_name as string ?? "—"}
+          sub={`${topGoalTeam?.goals_for} scored`}
           icon="⚡"
           color="#6CABDD"
         />
         <StatCard
           label="Best Defence"
-          value="Arsenal"
-          sub="29 conceded"
+          value={bestDefence?.team_name as string ?? "—"}
+          sub={`${bestDefence?.goals_against} conceded`}
           icon="🛡️"
           color="#EF0107"
         />
         <StatCard
           label="Most Wins"
-          value="Man City"
-          sub="28 wins"
+          value={mostWins?.team_name as string ?? "—"}
+          sub={`${mostWins?.won} wins`}
           icon="🏆"
           color="#6CABDD"
         />
         <StatCard
           label="Relegated"
-          value="Luton · Burnley · Sheffield"
+          value={relegated.join(" · ")}
           sub="Bottom 3"
           icon="⬇️"
           color="#ef4444"
@@ -153,7 +164,7 @@ export default async function LeagueTablePage() {
 }
 
 function StatCard({ label, value, sub, icon, color }: {
-  label: string; value: string; sub: string; icon: string; color: string;
+  label: string; value: string; sub: string | undefined; icon: string; color: string;
 }) {
   return (
     <div className="glass rounded-xl p-4">

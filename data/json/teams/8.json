@@ -2,7 +2,7 @@
   "team_id": 8,
   "team_name": "Manchester United",
   "standings": {
-    "position": 8,
+    "position": 9,
     "team_id": 8,
     "team_name": "Manchester United",
     "played": 38,
@@ -18,12 +18,11 @@
     "goals_per_game": 1.5,
     "goals_conceded_per_game": 1.53
   },
-  "form": "D,D,W,L,D,D,L,L,W,W",
   "matches": [
     {
       "match_id": 10373,
       "matchday": 28,
-      "match_date": "2024-05-19T00:00:00.000",
+      "match_date": "2024-05-19 00:00:00",
       "home_team_id": 10,
       "home_team_name": "Brighton & Hove Albion",
       "away_team_id": 8,
@@ -38,7 +37,7 @@
     {
       "match_id": 10370,
       "matchday": 27,
-      "match_date": "2024-05-15T00:00:00.000",
+      "match_date": "2024-05-15 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 7,
@@ -53,7 +52,7 @@
     {
       "match_id": 10366,
       "matchday": 27,
-      "match_date": "2024-05-12T00:00:00.000",
+      "match_date": "2024-05-12 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 2,
@@ -68,7 +67,7 @@
     {
       "match_id": 10357,
       "matchday": 26,
-      "match_date": "2024-05-06T00:00:00.000",
+      "match_date": "2024-05-06 00:00:00",
       "home_team_id": 14,
       "home_team_name": "Crystal Palace",
       "away_team_id": 8,
@@ -83,7 +82,7 @@
     {
       "match_id": 10339,
       "matchday": 25,
-      "match_date": "2024-04-27T00:00:00.000",
+      "match_date": "2024-04-27 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 18,
@@ -98,7 +97,7 @@
     {
       "match_id": 10335,
       "matchday": 25,
-      "match_date": "2024-04-24T00:00:00.000",
+      "match_date": "2024-04-24 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 19,
@@ -113,7 +112,7 @@
     {
       "match_id": 10319,
       "matchday": 24,
-      "match_date": "2024-04-13T00:00:00.000",
+      "match_date": "2024-04-13 00:00:00",
       "home_team_id": 20,
       "home_team_name": "Bournemouth",
       "away_team_id": 8,
@@ -128,7 +127,7 @@
     {
       "match_id": 10311,
       "matchday": 23,
-      "match_date": "2024-04-07T00:00:00.000",
+      "match_date": "2024-04-07 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 3,
@@ -143,7 +142,7 @@
     {
       "match_id": 10303,
       "matchday": 23,
-      "match_date": "2024-04-04T00:00:00.000",
+      "match_date": "2024-04-04 00:00:00",
       "home_team_id": 6,
       "home_team_name": "Chelsea",
       "away_team_id": 8,
@@ -158,7 +157,7 @@
     {
       "match_id": 10291,
       "matchday": 23,
-      "match_date": "2024-03-30T00:00:00.000",
+      "match_date": "2024-03-30 00:00:00",
       "home_team_id": 13,
       "home_team_name": "Brentford",
       "away_team_id": 8,
@@ -173,7 +172,7 @@
     {
       "match_id": 10269,
       "matchday": 22,
-      "match_date": "2024-03-09T00:00:00.000",
+      "match_date": "2024-03-09 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 16,
@@ -188,7 +187,7 @@
     {
       "match_id": 10267,
       "matchday": 21,
-      "match_date": "2024-03-03T00:00:00.000",
+      "match_date": "2024-03-03 00:00:00",
       "home_team_id": 1,
       "home_team_name": "Manchester City",
       "away_team_id": 8,
@@ -203,7 +202,7 @@
     {
       "match_id": 10254,
       "matchday": 20,
-      "match_date": "2024-02-24T00:00:00.000",
+      "match_date": "2024-02-24 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 12,
@@ -218,7 +217,7 @@
     {
       "match_id": 10247,
       "matchday": 20,
-      "match_date": "2024-02-18T00:00:00.000",
+      "match_date": "2024-02-18 00:00:00",
       "home_team_id": 17,
       "home_team_name": "Luton Town",
       "away_team_id": 8,
@@ -233,7 +232,7 @@
     {
       "match_id": 10237,
       "matchday": 19,
-      "match_date": "2024-02-11T00:00:00.000",
+      "match_date": "2024-02-11 00:00:00",
       "home_team_id": 4,
       "home_team_name": "Aston Villa",
       "away_team_id": 8,
@@ -248,7 +247,7 @@
     {
       "match_id": 10226,
       "matchday": 18,
-      "match_date": "2024-02-04T00:00:00.000",
+      "match_date": "2024-02-04 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 9,
@@ -263,7 +262,7 @@
     {
       "match_id": 10218,
       "matchday": 18,
-      "match_date": "2024-02-01T00:00:00.000",
+      "match_date": "2024-02-01 00:00:00",
       "home_team_id": 11,
       "home_team_name": "Wolverhampton Wanderers",
       "away_team_id": 8,
@@ -278,7 +277,7 @@
     {
       "match_id": 10203,
       "matchday": 17,
-      "match_date": "2024-01-14T00:00:00.000",
+      "match_date": "2024-01-14 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 5,
@@ -293,7 +292,7 @@
     {
       "match_id": 10194,
       "matchday": 16,
-      "match_date": "2023-12-30T00:00:00.000",
+      "match_date": "2023-12-30 00:00:00",
       "home_team_id": 15,
       "home_team_name": "Nottingham Forest",
       "away_team_id": 8,
@@ -308,7 +307,7 @@
     {
       "match_id": 10183,
       "matchday": 16,
-      "match_date": "2023-12-26T00:00:00.000",
+      "match_date": "2023-12-26 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 4,
@@ -323,7 +322,7 @@
     {
       "match_id": 10172,
       "matchday": 16,
-      "match_date": "2023-12-23T00:00:00.000",
+      "match_date": "2023-12-23 00:00:00",
       "home_team_id": 9,
       "home_team_name": "West Ham United",
       "away_team_id": 8,
@@ -338,7 +337,7 @@
     {
       "match_id": 10169,
       "matchday": 15,
-      "match_date": "2023-12-17T00:00:00.000",
+      "match_date": "2023-12-17 00:00:00",
       "home_team_id": 3,
       "home_team_name": "Liverpool",
       "away_team_id": 8,
@@ -353,7 +352,7 @@
     {
       "match_id": 10153,
       "matchday": 14,
-      "match_date": "2023-12-09T00:00:00.000",
+      "match_date": "2023-12-09 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 20,
@@ -368,7 +367,7 @@
     {
       "match_id": 10148,
       "matchday": 14,
-      "match_date": "2023-12-06T00:00:00.000",
+      "match_date": "2023-12-06 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 6,
@@ -383,7 +382,7 @@
     {
       "match_id": 10135,
       "matchday": 14,
-      "match_date": "2023-12-02T00:00:00.000",
+      "match_date": "2023-12-02 00:00:00",
       "home_team_id": 7,
       "home_team_name": "Newcastle United",
       "away_team_id": 8,
@@ -398,7 +397,7 @@
     {
       "match_id": 10129,
       "matchday": 13,
-      "match_date": "2023-11-26T00:00:00.000",
+      "match_date": "2023-11-26 00:00:00",
       "home_team_id": 16,
       "home_team_name": "Everton",
       "away_team_id": 8,
@@ -413,7 +412,7 @@
     {
       "match_id": 10114,
       "matchday": 12,
-      "match_date": "2023-11-11T00:00:00.000",
+      "match_date": "2023-11-11 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 17,
@@ -428,7 +427,7 @@
     {
       "match_id": 10101,
       "matchday": 11,
-      "match_date": "2023-11-04T00:00:00.000",
+      "match_date": "2023-11-04 00:00:00",
       "home_team_id": 12,
       "home_team_name": "Fulham",
       "away_team_id": 8,
@@ -443,7 +442,7 @@
     {
       "match_id": 10100,
       "matchday": 10,
-      "match_date": "2023-10-29T00:00:00.000",
+      "match_date": "2023-10-29 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 1,
@@ -458,7 +457,7 @@
     {
       "match_id": 10088,
       "matchday": 9,
-      "match_date": "2023-10-21T00:00:00.000",
+      "match_date": "2023-10-21 00:00:00",
       "home_team_id": 19,
       "home_team_name": "Sheffield United",
       "away_team_id": 8,
@@ -473,7 +472,7 @@
     {
       "match_id": 10075,
       "matchday": 8,
-      "match_date": "2023-10-07T00:00:00.000",
+      "match_date": "2023-10-07 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 13,
@@ -488,7 +487,7 @@
     {
       "match_id": 10063,
       "matchday": 7,
-      "match_date": "2023-09-30T00:00:00.000",
+      "match_date": "2023-09-30 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 14,
@@ -503,7 +502,7 @@
     {
       "match_id": 10054,
       "matchday": 6,
-      "match_date": "2023-09-23T00:00:00.000",
+      "match_date": "2023-09-23 00:00:00",
       "home_team_id": 18,
       "home_team_name": "Burnley",
       "away_team_id": 8,
@@ -518,7 +517,7 @@
     {
       "match_id": 10043,
       "matchday": 5,
-      "match_date": "2023-09-16T00:00:00.000",
+      "match_date": "2023-09-16 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 10,
@@ -533,7 +532,7 @@
     {
       "match_id": 10039,
       "matchday": 4,
-      "match_date": "2023-09-03T00:00:00.000",
+      "match_date": "2023-09-03 00:00:00",
       "home_team_id": 2,
       "home_team_name": "Arsenal",
       "away_team_id": 8,
@@ -548,7 +547,7 @@
     {
       "match_id": 10025,
       "matchday": 3,
-      "match_date": "2023-08-26T00:00:00.000",
+      "match_date": "2023-08-26 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 15,
@@ -563,7 +562,7 @@
     {
       "match_id": 10015,
       "matchday": 2,
-      "match_date": "2023-08-19T00:00:00.000",
+      "match_date": "2023-08-19 00:00:00",
       "home_team_id": 5,
       "home_team_name": "Tottenham Hotspur",
       "away_team_id": 8,
@@ -578,7 +577,7 @@
     {
       "match_id": 10010,
       "matchday": 1,
-      "match_date": "2023-08-14T00:00:00.000",
+      "match_date": "2023-08-14 00:00:00",
       "home_team_id": 8,
       "home_team_name": "Manchester United",
       "away_team_id": 11,
@@ -589,32 +588,6 @@
       "match_status": "available",
       "home_result": "W",
       "away_result": "L"
-    }
-  ],
-  "scorers": [
-    {
-      "rank": 23,
-      "player_id": 50023,
-      "player_name": "Rasmus Hojlund",
-      "team_name": "Manchester United",
-      "goals": 10,
-      "assists": 2,
-      "goal_contributions": 12,
-      "matches_played": 23,
-      "goals_per_game": 0.43,
-      "assists_per_game": 0.09
-    },
-    {
-      "rank": 22,
-      "player_id": 50022,
-      "player_name": "Marcus Rashford",
-      "team_name": "Manchester United",
-      "goals": 8,
-      "assists": 5,
-      "goal_contributions": 13,
-      "matches_played": 33,
-      "goals_per_game": 0.24,
-      "assists_per_game": 0.15
     }
   ]
 }

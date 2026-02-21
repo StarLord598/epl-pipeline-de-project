@@ -1,0 +1,273 @@
+{
+  "timestamp": "2026-02-20T23:41:26.393582",
+  "total": 33,
+  "passed": 32,
+  "failed": 0,
+  "warnings": 1,
+  "checks": [
+    {
+      "name": "raw.matches exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "418 rows",
+      "value": "418"
+    },
+    {
+      "name": "raw.events exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "129,401 rows",
+      "value": "129401"
+    },
+    {
+      "name": "raw.lineups exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "1,111 rows",
+      "value": "1111"
+    },
+    {
+      "name": "raw.top_scorers_2324 exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "30 rows",
+      "value": "30"
+    },
+    {
+      "name": "epl_staging.stg_matches exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "380 rows",
+      "value": "380"
+    },
+    {
+      "name": "epl_staging.stg_standings exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "20 rows",
+      "value": "20"
+    },
+    {
+      "name": "epl_staging.stg_top_scorers exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "30 rows",
+      "value": "30"
+    },
+    {
+      "name": "epl_mart.mart_league_table exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "20 rows",
+      "value": "20"
+    },
+    {
+      "name": "epl_mart.mart_recent_results exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "380 rows",
+      "value": "380"
+    },
+    {
+      "name": "epl_mart.mart_top_scorers exists",
+      "category": "schema",
+      "passed": true,
+      "severity": "critical",
+      "message": "30 rows",
+      "value": "30"
+    },
+    {
+      "name": "raw.matches \u2265 300",
+      "category": "row_count",
+      "passed": true,
+      "severity": "critical",
+      "message": "418 rows (Should have 300+ matches (2 seasons))",
+      "value": "418"
+    },
+    {
+      "name": "raw.events \u2265 50,000",
+      "category": "row_count",
+      "passed": true,
+      "severity": "critical",
+      "message": "129,401 rows (Should have 50k+ StatsBomb events)",
+      "value": "129401"
+    },
+    {
+      "name": "epl_mart.mart_league_table \u2265 20",
+      "category": "row_count",
+      "passed": true,
+      "severity": "critical",
+      "message": "20 rows (Should have exactly 20 teams)",
+      "value": "20"
+    },
+    {
+      "name": "epl_mart.mart_recent_results \u2265 300",
+      "category": "row_count",
+      "passed": true,
+      "severity": "critical",
+      "message": "380 rows (Should have 300+ results)",
+      "value": "380"
+    },
+    {
+      "name": "epl_mart.mart_top_scorers \u2265 10",
+      "category": "row_count",
+      "passed": true,
+      "severity": "critical",
+      "message": "30 rows (Should have 10+ top scorers)",
+      "value": "30"
+    },
+    {
+      "name": "epl_mart.mart_league_table.team_id unique",
+      "category": "uniqueness",
+      "passed": true,
+      "severity": "critical",
+      "message": "20 distinct / 20 total",
+      "value": "{'total': 20, 'distinct': 20}"
+    },
+    {
+      "name": "epl_mart.mart_recent_results.match_id unique",
+      "category": "uniqueness",
+      "passed": true,
+      "severity": "critical",
+      "message": "380 distinct / 380 total",
+      "value": "{'total': 380, 'distinct': 380}"
+    },
+    {
+      "name": "epl_mart.mart_top_scorers.player_id unique",
+      "category": "uniqueness",
+      "passed": true,
+      "severity": "critical",
+      "message": "30 distinct / 30 total",
+      "value": "{'total': 30, 'distinct': 30}"
+    },
+    {
+      "name": "epl_staging.stg_matches.match_id unique",
+      "category": "uniqueness",
+      "passed": true,
+      "severity": "critical",
+      "message": "380 distinct / 380 total",
+      "value": "{'total': 380, 'distinct': 380}"
+    },
+    {
+      "name": "epl_mart.mart_league_table.team_name not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "epl_mart.mart_league_table.points not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "epl_mart.mart_league_table.position not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "epl_mart.mart_recent_results.match_date not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "epl_mart.mart_recent_results.home_team_name not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "epl_mart.mart_top_scorers.player_name not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "epl_mart.mart_top_scorers.goals not null",
+      "category": "completeness",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 nulls found",
+      "value": "0"
+    },
+    {
+      "name": "No negative points",
+      "category": "business_rule",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 teams with negative points",
+      "value": null
+    },
+    {
+      "name": "Points = W*3 + D",
+      "category": "business_rule",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 teams with inconsistent points",
+      "value": null
+    },
+    {
+      "name": "Played = W + D + L",
+      "category": "business_rule",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 teams with inconsistent game count",
+      "value": null
+    },
+    {
+      "name": "GD = GF - GA",
+      "category": "business_rule",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 teams with inconsistent goal difference",
+      "value": null
+    },
+    {
+      "name": "No negative scores",
+      "category": "business_rule",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 matches with negative scores",
+      "value": null
+    },
+    {
+      "name": "All scorers have goals > 0",
+      "category": "business_rule",
+      "passed": true,
+      "severity": "critical",
+      "message": "0 scorers with 0 goals",
+      "value": null
+    },
+    {
+      "name": "All match teams in standings",
+      "category": "referential",
+      "passed": false,
+      "severity": "warning",
+      "message": "Binder Error: Referenced column \"team_name\" not found in FROM clause!\nCandidate bindings: \"away_team",
+      "value": null
+    }
+  ]
+}

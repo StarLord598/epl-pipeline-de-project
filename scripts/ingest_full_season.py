@@ -178,7 +178,7 @@ def download_2324_season(conn: duckdb.DuckDBPyConnection):
 
         # Remove existing 2023-24 matches
         conn.execute("DELETE FROM raw.matches WHERE season_id = 2324")
-        conn.execute("INSERT INTO raw.matches SELECT * FROM match_df")
+        conn.execute("INSERT OR IGNORE INTO raw.matches SELECT * FROM match_df")
         log(f"  ✓ Loaded {len(rows)} matches (2023-24 season)")
 
     return len(rows)
@@ -224,6 +224,7 @@ def load_top_scorers_2324(conn: duckdb.DuckDBPyConnection):
 
     df = pd.DataFrame(rows)
     df["ingested_at"] = datetime.now()
+    conn.execute("DELETE FROM raw.top_scorers_2324")
     conn.execute("DELETE FROM raw.top_scorers_2324")
     conn.execute("INSERT INTO raw.top_scorers_2324 SELECT * FROM df")
     log(f"  ✓ Loaded {len(rows)} top scorers")

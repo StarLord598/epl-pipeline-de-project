@@ -1,7 +1,31 @@
 epl_pipeline:
-  target: dev
+  # Default to local DuckDB for the portfolio demo.
+  # To run against BigQuery instead: export DBT_TARGET=prod
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+
   outputs:
-    dev:
+    # ✅ Local-first (portfolio)
+    local:
       type: duckdb
       path: "{{ env_var('EPL_DB_PATH', '../data/epl_pipeline.duckdb') }}"
       threads: 4
+
+    # ☁️ Cloud (optional)
+    prod:
+      type: bigquery
+      method: service-account
+      project: cedar-style-487221-a3
+      dataset: epl_staging
+      threads: 4
+      timeout_seconds: 300
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS', '../../keys/gcp-service-account.json') }}"
+      location: US
+
+    dev:
+      type: bigquery
+      method: oauth
+      project: cedar-style-487221-a3
+      dataset: epl_staging_dev
+      threads: 4
+      timeout_seconds: 300
+      location: US

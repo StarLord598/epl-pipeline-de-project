@@ -1,142 +1,296 @@
 # ⚽ EPL Analytics Pipeline
 
-A complete, working Premier League analytics pipeline and dashboard built with DuckDB, Python, dbt, and Next.js.
+> **A production-grade data engineering pipeline** that ingests, transforms, tests, and visualizes Premier League data — orchestrated by Airflow, modeled in dbt, stored in DuckDB, and served through a Next.js dashboard.
 
-## Live Features
+[![CI](https://github.com/StarLord598/epl-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/StarLord598/epl-pipeline/actions)
 
-- **Full 2023-24 EPL Season** — All 380 matches, final standings, real results
-- **League Table** — Live standings with qualification zones, form, win rates
-- **Top Scorers** — Golden Boot race with goals/assists/per-game stats + charts
-- **Match Results** — All matchdays with scores, browseable by round
-- **Match Detail** — Click any match for events timeline, stats, goal scorers
-- **Team Pages** — Full season summary per club with match history
-- **Season Stats** — Radar charts, goals analysis, team comparisons
+---
 
-## Architecture
+## 🏗️ Architecture
 
+```mermaid
+flowchart LR
+    subgraph Sources["📡 Data Sources"]
+        FD["football-data.org API\n(live scores, standings)"]
+        FDUK["football-data.co.uk\n(2023-24 results CSV)"]
+        SB["StatsBomb Open Data\n(match events, lineups)"]
+    end
+
+    subgraph Orchestration["⏱️ Airflow (Docker)"]
+        direction TB
+        LP["live_poll_15m\n⚡ Every 15 min"]
+        HR["hourly_refresh\n🔄 Every hour"]
+        DT["dbt_transform\n🔧 Every 30 min"]
+        IL["ingest_epl_local\n📥 Daily @ 6 AM"]
+    end
+
+    subgraph Pipeline["🔄 Data Pipeline"]
+        direction TB
+        RAW["🥉 Bronze\nraw.matches\nraw.events (129k rows)\nraw.live_matches\nraw.live_standings"]
+        STG["🥈 Silver\nstg_matches\nstg_standings\nstg_top_scorers"]
+        MART["🥇 Gold\nmart_league_table\nmart_recent_results\nmart_top_scorers"]
+    end
+
+    subgraph Storage["💾 DuckDB"]
+        DB[(epl_pipeline.duckdb)]
+    end
+
+    subgraph Quality["✅ Data Quality"]
+        DBT_TEST["dbt test\n19 assertions"]
+        DQ["Custom checks\n30+ validations"]
+        FRESH["Source freshness\nSLA monitoring"]
+    end
+
+    subgraph Serve["🖥️ Dashboard"]
+        JSON["JSON Export"]
+        NEXT["Next.js 14\nTailwind + Recharts"]
+    end
+
+    FD --> LP
+    FDUK --> IL
+    SB --> IL
+
+    LP --> RAW
+    HR --> RAW
+    IL --> RAW
+
+    RAW --> STG
+    STG --> MART
+
+    RAW --> DB
+    STG --> DB
+    MART --> DB
+
+    MART --> DBT_TEST
+    MART --> DQ
+    RAW --> FRESH
+
+    MART --> JSON
+    JSON --> NEXT
+
+    DT --> STG
 ```
-Data Sources
-  ├── football-data.co.uk (2023-24 EPL results CSV, free)
-  └── StatsBomb Open Data (2003/04 Arsenal events, free)
-        ↓
-  DuckDB (local OLAP database)
-    ├── raw.matches
-    ├── raw.events (129k rows)
-    └── raw.lineups
-        ↓
-  dbt (SQL transforms)
-    ├── staging/ (views, cleaned data)
-    └── mart/ (tables, dashboard-ready)
-        ↓
-  JSON exports → Next.js Dashboard
-```
 
-## Quick Start
+## ✨ Features
 
-### 1. Setup
+| Feature | Details |
+|---------|---------|
+| **Live Data Ingestion** | football-data.org API pulls live scores + standings every 15 minutes |
+| **Historical Data** | 380 matches (2023-24) + 129k StatsBomb events (Arsenal 03/04) |
+| **Medallion Architecture** | Bronze → Silver → Gold with clear data contracts |
+| **dbt Transforms** | 6 models (3 staging views + 3 mart tables), 19 test assertions |
+| **Incremental Models** | `mart_recent_results` uses incremental materialization |
+| **Data Quality Framework** | 30+ checks: schema, row counts, uniqueness, business rules, freshness |
+| **Source Freshness** | dbt source freshness with warn/error SLAs |
+| **Airflow Orchestration** | 4 DAGs in Docker Compose (LocalExecutor + Postgres) |
+| **Live Dashboard** | Next.js 14 with real-time match tracking, auto-refresh every 60s |
+| **CI/CD** | GitHub Actions: lint → integration test → dbt → data quality → Docker build |
+| **Portable SQL** | Custom `safe_divide` macro for BigQuery ↔ DuckDB portability |
 
+## 🚀 Quick Start
+
+### One-command setup
 ```bash
-cd /path/to/epl-pipeline
-python3.13 -m venv venv313
-source venv313/bin/activate
-pip install duckdb statsbombpy dbt-duckdb requests pandas
+make setup    # Install Python + Node dependencies
+make run      # Ingest → Transform → Export (full pipeline)
+make test     # Run dbt tests + data quality checks
 ```
 
-### 2. Run the full pipeline
-
+### Or step by step
 ```bash
-./scripts/run_pipeline.sh
+# 1. Setup
+python3 -m venv venv313 && source venv313/bin/activate
+pip install -r requirements.txt
+cd dashboard && npm install && cd ..
+
+# 2. Ingest
+python scripts/ingest_full_season.py    # 2023-24 season (380 matches)
+python scripts/ingest_data.py           # StatsBomb events (129k rows)
+
+# 3. Transform
+cd dbt && dbt run --profiles-dir . && dbt test --profiles-dir .
+
+# 4. Export + View
+python scripts/export_json.py
+cd dashboard && npm run dev             # → http://localhost:3000
 ```
 
-Or step by step:
-
+### Airflow (Docker)
 ```bash
-# Ingest StatsBomb events
-source venv313/bin/activate
-python3 scripts/ingest_data.py
-
-# Ingest 2023-24 results + top scorers
-python3 scripts/ingest_full_season.py
-
-# Run dbt transforms
-cd dbt
-EPL_DB_PATH=../data/epl_pipeline.duckdb dbt run
-EPL_DB_PATH=../data/epl_pipeline.duckdb dbt test  # 17/17 tests pass
+make airflow-up     # Build + start Airflow containers
+                    # → http://localhost:8080 (admin/admin)
+make airflow-down   # Stop everything
 ```
 
-### 3. Start the dashboard
+## 📊 Dashboard Pages
 
-```bash
-cd dashboard
-npm install
-npm run dev
-# Open http://localhost:3000
-```
+| Page | Description |
+|------|-------------|
+| **🏆 League Table** | Full standings with qualification zones, form, per-game stats |
+| **⚡ Live Matches** | Real-time scores with auto-refresh, status badges (LIVE/HT/FT) |
+| **⚽ Results** | All 380 matches browseable by gameweek |
+| **🎯 Top Scorers** | Golden Boot race with bar charts |
+| **📊 Stats** | Radar charts, team comparisons (select up to 4 teams) |
+| **🏟️ Team Pages** | Per-club season summary with match history |
+| **🩺 Health** | Pipeline health status |
 
-## Data Sources
-
-| Source | Data | Auth |
-|--------|------|------|
-| [football-data.co.uk](https://www.football-data.co.uk) | Full 2023-24 EPL results CSV | None (free) |
-| [StatsBomb Open Data](https://github.com/statsbomb/open-data) | Match events, lineups (2003-04 Arsenal) | None (fully open) |
-
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 epl-pipeline/
-├── scripts/
-│   ├── ingest_data.py          # StatsBomb ingestion
-│   ├── ingest_full_season.py   # football-data.co.uk ingestion
-│   └── run_pipeline.sh         # Full pipeline runner
-├── dbt/
-│   ├── models/staging/         # Cleaned views (stg_matches, stg_standings, etc.)
-│   └── models/mart/            # Gold tables (mart_league_table, etc.)
-├── airflow/dags/
-│   ├── ingest_epl_local.py     # Local DuckDB DAG
-│   └── ...                     # Original BigQuery DAGs (for future migration)
-├── dashboard/                  # Next.js 14 App Router
-│   ├── app/                    # Pages
-│   ├── components/             # Reusable components
-│   └── lib/data.ts             # Type definitions
+├── Makefile                    # One-command interface
+├── docker-compose.yml          # Airflow + Postgres
+├── requirements.txt            # Python dependencies
+├── .github/workflows/ci.yml    # 4-stage CI pipeline
+│
+├── scripts/                    # Python ingestion + exports
+│   ├── ingest_data.py          # StatsBomb event ingestion
+│   ├── ingest_full_season.py   # football-data.co.uk (2023-24)
+│   ├── ingest_live_matches.py  # Live API → DuckDB
+│   ├── ingest_live_standings.py
+│   ├── export_json.py          # DuckDB mart → dashboard JSON
+│   ├── export_live_json.py     # Live data → dashboard JSON
+│   ├── data_quality_checks.py  # 30+ quality assertions
+│   └── live_common.py          # Shared utilities
+│
+├── dbt/                        # SQL transformations
+│   ├── models/staging/         # Silver layer (views)
+│   │   ├── stg_matches.sql
+│   │   ├── stg_standings.sql
+│   │   └── stg_top_scorers.sql
+│   ├── models/mart/            # Gold layer (tables)
+│   │   ├── mart_league_table.sql
+│   │   ├── mart_recent_results.sql  # ← incremental
+│   │   └── mart_top_scorers.sql
+│   ├── macros/
+│   │   ├── safe_divide.sql     # BigQuery ↔ DuckDB portable
+│   │   └── generate_schema_name.sql
+│   └── profiles.yml            # Multi-target (local/prod/dev)
+│
+├── airflow/dags/               # Orchestration
+│   ├── ingest_epl_local.py     # Daily full pipeline
+│   ├── hourly_refresh.py       # Hourly live refresh
+│   ├── live_poll_15m.py        # 15-min live scores
+│   ├── dbt_transform.py        # 30-min dbt runs
+│   └── ...                     # Additional DAGs
+│
+├── dashboard/                  # Next.js 14 + TypeScript
+│   ├── app/                    # Pages (App Router)
+│   │   ├── page.tsx            # League table
+│   │   ├── live/page.tsx       # ⚡ Live matches
+│   │   ├── results/page.tsx    # Match results
+│   │   ├── scorers/page.tsx    # Top scorers
+│   │   └── stats/page.tsx      # Team comparisons
+│   ├── components/             # Reusable UI
+│   └── lib/data.ts             # Types + team colors
+│
 ├── data/
-│   ├── epl_pipeline.duckdb     # Local database
-│   └── json/                   # Pre-exported data for dashboard
-└── infra/                      # Terraform (for future GCP migration)
+│   └── epl_pipeline.duckdb     # Local OLAP database
+│
+└── infra/docker/
+    └── Dockerfile.airflow      # Custom Airflow image
 ```
 
-## dbt Models
+## 🧪 Testing & Quality
 
-| Model | Type | Description |
-|-------|------|-------------|
-| `stg_matches` | view | Cleaned 2023-24 matches with winner |
-| `stg_standings` | view | Points table from match results |
-| `stg_top_scorers` | view | Scorers from event data |
-| `mart_league_table` | table | Full standings with calculated metrics |
-| `mart_recent_results` | table | All matches with H/A results |
-| `mart_top_scorers` | table | Golden Boot leaderboard |
-
-## Technology Stack
-
-- **DuckDB 1.4** — Local OLAP database (zero-config, no server)
-- **Python 3.13** — Data ingestion and transformation
-- **dbt 1.11** + **dbt-duckdb** — SQL transformations
-- **StatsBombPy** — Official Python client for StatsBomb open data
-- **Next.js 14** — App Router, TypeScript, Tailwind CSS
-- **Recharts** — Data visualization
-- **Airflow** — DAG orchestration (local or containerized)
-
-## What's Next
-
-- [ ] **BigQuery migration** — Swap DuckDB profile for BigQuery, run on GCP
-- [ ] **GitHub Actions CI/CD** — Auto-run pipeline on schedule
-- [ ] **Airflow on Docker** — Full containerized orchestration
-- [ ] **2024-25 season** — Keep updating with current data
-- [ ] **Player profiles** — Deep dive stats with xG, heatmaps
-- [ ] **API routes** — Real-time DuckDB queries from dashboard
-
-## Git
-
+### dbt Tests (19 assertions)
 ```
-user.name  = rocket-racoon-tech-bot
-user.email = rocket.racoon.tech1@gmail.com
+✅ unique + not_null on all primary keys
+✅ Source freshness SLAs (warn: 24h, error: 72h)
+✅ Schema tests on staging + mart models
 ```
+
+### Data Quality Framework (`scripts/data_quality_checks.py`)
+| Category | Checks | Examples |
+|----------|--------|---------|
+| **Schema** | 10 | All expected tables exist with data |
+| **Row Counts** | 5 | matches ≥ 300, events ≥ 50k, teams = 20 |
+| **Uniqueness** | 4 | No duplicate match_ids, team_ids, player_ids |
+| **Completeness** | 7 | No nulls in critical fields (scores, dates, names) |
+| **Business Rules** | 6 | Points = W×3 + D, GD = GF - GA, no negative scores |
+| **Referential** | 1 | All match teams exist in standings |
+| **Total** | **33** | JSON report exported to `data/quality_report.json` |
+
+### CI Pipeline (GitHub Actions)
+```
+┌─────────┐    ┌──────────────┐    ┌───────────┐    ┌────────┐
+│  Lint   │───▶│ Integration  │    │ Dashboard │    │ Docker │
+│ DAGs +  │    │ Ingest → dbt │    │   Build   │    │ Build  │
+│ dbt +   │    │  → Quality   │    │  Next.js  │    │Airflow │
+│ Python  │    │   → Export   │    │           │    │ Image  │
+└─────────┘    └──────────────┘    └───────────┘    └────────┘
+                     ▲ runs all        ▲ parallel      ▲
+                     │ 33 quality      │               │
+                     │ checks          │               │
+                     └─────────────────┴───────────────┘
+```
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Ingestion** | Python 3.13, requests, statsbombpy | API + CSV data extraction |
+| **Storage** | DuckDB 1.1 | Local OLAP database (zero-config) |
+| **Transform** | dbt 1.8 + dbt-duckdb | SQL transformations + testing |
+| **Orchestration** | Apache Airflow 2.9 (Docker) | DAG scheduling + monitoring |
+| **Dashboard** | Next.js 14, TypeScript, Tailwind CSS | Data visualization |
+| **Charts** | Recharts | Bar charts, radar charts |
+| **CI/CD** | GitHub Actions | 4-stage pipeline (lint → test → build) |
+| **Containers** | Docker Compose | Airflow + Postgres |
+
+## 📈 Data Pipeline Details
+
+### Medallion Architecture
+
+| Layer | Schema | Models | Description |
+|-------|--------|--------|-------------|
+| 🥉 **Bronze** | `raw` | 6 tables | Raw ingested data (matches, events, lineups, standings, scorers) |
+| 🥈 **Silver** | `epl_staging` | 3 views | Cleaned, deduplicated, type-cast data |
+| 🥇 **Gold** | `epl_mart` | 3 tables | Business-ready aggregations for dashboard |
+
+### Incremental Processing
+- `mart_recent_results` uses dbt's incremental materialization
+- Only new matches are processed on each run (dedup on `match_id`)
+- Full refresh available via `dbt run --full-refresh`
+
+### Idempotent Ingestion
+- All scripts use `INSERT OR IGNORE` (PK tables) or `DELETE + INSERT` (no-PK tables)
+- Safe to re-run any script without data duplication
+
+### Portable SQL
+- Custom `safe_divide` macro handles BigQuery's `SAFE_DIVIDE()` vs DuckDB's `CASE WHEN`
+- dbt profiles support `local` (DuckDB), `prod` (BigQuery), and `dev` (BigQuery sandbox)
+- Source configs use Jinja conditionals for database/schema resolution
+
+## 💰 Cost
+
+| Component | Cost |
+|-----------|------|
+| DuckDB | Free (embedded) |
+| football-data.org API | Free tier (10 req/min) |
+| StatsBomb Open Data | Free (open source) |
+| Airflow (Docker) | Free (local) |
+| GitHub Actions CI | Free (public repo) |
+| **Total** | **$0/month** |
+
+## 🗺️ Roadmap
+
+- [x] Local DuckDB pipeline with dbt
+- [x] Airflow orchestration (Docker Compose)
+- [x] Live API data ingestion (football-data.org)
+- [x] Real-time dashboard with auto-refresh
+- [x] Data quality framework (33 checks)
+- [x] CI/CD with GitHub Actions
+- [ ] BigQuery migration (swap dbt target, deploy on GCP)
+- [ ] 2024-25 + 2025-26 multi-season support
+- [ ] Player profiles with xG, heatmaps
+- [ ] Slack/email alerts on quality failures
+- [ ] dbt docs hosted on GitHub Pages
+
+## 📝 License
+
+MIT
+
+---
+
+*Built by [Andres Alvarez](https://github.com/StarLord598) — Data Engineering Portfolio Project*

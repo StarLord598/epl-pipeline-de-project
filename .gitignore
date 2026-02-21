@@ -33,3 +33,4 @@ dashboard/.next/
 
 # OS
 .DS_Store
+data/quality_report.json

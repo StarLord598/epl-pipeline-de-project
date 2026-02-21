@@ -11,6 +11,9 @@ x-airflow-common: &airflow-common
     - ./airflow/include:/opt/airflow/include
     - ./airflow/tests:/opt/airflow/tests
     - ./dbt:/opt/airflow/dbt
+    - ./scripts:/opt/airflow/scripts
+    - ./data:/opt/airflow/data
+    - ./dashboard:/opt/airflow/dashboard
     - ./keys:/opt/airflow/keys:ro
   depends_on:
     postgres:
@@ -35,17 +38,11 @@ services:
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
-    command: >
-      -c "
+    command:
+      - -c
+      - |
         airflow db migrate &&
-        airflow users create \
-          --username admin \
-          --password admin \
-          --firstname Admin \
-          --lastname User \
-          --role Admin \
-          --email admin@example.com || true
-      "
+        airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true
     restart: "no"
 
   airflow-webserver:

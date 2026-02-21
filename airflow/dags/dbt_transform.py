@@ -32,27 +32,27 @@ def dbt_transform():
 
     dbt_deps = BashOperator(
         task_id="dbt_deps",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps --profiles-dir {DBT_PROJECT_DIR} ",
     )
 
     dbt_run_staging = BashOperator(
         task_id="dbt_run_staging",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --select staging",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --select staging --profiles-dir {DBT_PROJECT_DIR} ",
     )
 
     dbt_test_staging = BashOperator(
         task_id="dbt_test_staging",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --select staging",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --select staging --profiles-dir {DBT_PROJECT_DIR} ",
     )
 
     dbt_run_mart = BashOperator(
         task_id="dbt_run_mart",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --select mart",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --select mart --profiles-dir {DBT_PROJECT_DIR} ",
     )
 
     dbt_test_mart = BashOperator(
         task_id="dbt_test_mart",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --select mart",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --select mart --profiles-dir {DBT_PROJECT_DIR} ",
     )
 
     dbt_deps >> dbt_run_staging >> dbt_test_staging >> dbt_run_mart >> dbt_test_mart

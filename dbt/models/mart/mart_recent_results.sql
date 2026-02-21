@@ -1,5 +1,14 @@
 -- Gold layer: Match results ready for dashboard
 -- Includes derived result for home/away teams
+-- Incremental: only processes new matches since last run
+
+{{
+  config(
+    materialized='incremental',
+    unique_key='match_id',
+    on_schema_change='append_new_columns'
+  )
+}}
 
 select
     m.match_id,
@@ -29,4 +38,9 @@ select
     end as away_result
 
 from {{ ref('stg_matches') }} m
+
+{% if is_incremental() %}
+where m.match_id not in (select match_id from {{ this }})
+{% endif %}
+
 order by m.match_date desc, m.matchday desc

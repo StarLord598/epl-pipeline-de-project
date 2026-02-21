@@ -172,7 +172,7 @@ def ingest_matches(conn: duckdb.DuckDBPyConnection, competition_id: int, season_
         # Use INSERT OR REPLACE pattern
         conn.execute("DELETE FROM raw.matches WHERE competition_id = ? AND season_id = ?",
                      [competition_id, season_id])
-        conn.execute("INSERT INTO raw.matches SELECT * FROM df")
+        conn.execute("INSERT OR IGNORE INTO raw.matches SELECT * FROM df")
         log(f"  ✓ Loaded {len(rows)} matches to raw.matches")
 
     return [r["match_id"] for r in rows]
@@ -234,7 +234,7 @@ def ingest_events_sample(conn: duckdb.DuckDBPyConnection, match_ids: list, sampl
         if not existing.empty:
             df = df[~df["event_id"].isin(existing["event_id"])]
         if not df.empty:
-            conn.execute("INSERT INTO raw.events SELECT * FROM df")
+            conn.execute("INSERT OR IGNORE INTO raw.events SELECT * FROM df")
         log(f"  ✓ Loaded {len(all_events)} events to raw.events")
     else:
         log("  WARNING: No events loaded")
@@ -277,6 +277,7 @@ def ingest_lineups(conn: duckdb.DuckDBPyConnection, match_ids: list, sample_size
         df = pd.DataFrame(all_rows)
         df["raw_json"] = "{}"
         df["ingested_at"] = datetime.utcnow()
+        conn.execute("DELETE FROM raw.lineups WHERE match_id IN (SELECT DISTINCT match_id FROM df)")
         conn.execute("DELETE FROM raw.lineups WHERE match_id IN (SELECT DISTINCT match_id FROM df)")
         conn.execute("INSERT INTO raw.lineups SELECT * FROM df")
         log(f"  ✓ Loaded {len(all_rows)} lineup rows to raw.lineups")
