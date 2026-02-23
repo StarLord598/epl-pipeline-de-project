@@ -8,8 +8,7 @@ Also preserves StatsBomb Invincibles match events for detail pages.
 
 import io
 import json
-import re
-from datetime import datetime, date
+from datetime import datetime
 from pathlib import Path
 
 import duckdb
@@ -513,8 +512,10 @@ def run_quality_checks(conn: duckdb.DuckDBPyConnection):
         ok = check(val)
         status = "✓ PASS" if ok else "✗ FAIL"
         log(f"  {status}: {name} (={val})")
-        if ok: passed += 1
-        else: failed += 1
+        if ok:
+            passed += 1
+        else:
+            failed += 1
     log(f"Checks: {passed} passed, {failed} failed")
     return failed == 0
 

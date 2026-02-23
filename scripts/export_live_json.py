@@ -12,8 +12,9 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s", datefmt="%H:%M:%S")
@@ -28,7 +29,6 @@ DASH_DATA.mkdir(parents=True, exist_ok=True)
 API_KEY = os.getenv("FOOTBALL_DATA_API_KEY", "").strip()
 
 
-import math
 
 def json_serial(obj):
     if hasattr(obj, "isoformat"):
