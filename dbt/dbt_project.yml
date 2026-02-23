@@ -1,5 +1,10 @@
 name: epl_pipeline
 version: '1.0.0'
+description: >
+  EPL Analytics Pipeline — dbt transforms for Premier League data.
+  Medallion architecture (Bronze→Silver→Gold) with SCD2 tracking,
+  rolling windows, Kimball dimensions, and 29 data quality tests.
+  Powered by DuckDB.
 config-version: 2
 
 profile: epl_pipeline

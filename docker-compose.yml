@@ -1,5 +1,11 @@
 version: '3.8'
 
+# ─────────────────────────────────────────────────────────────────────
+# EPL Analytics Pipeline — Docker Compose
+# Services: Airflow (scheduler + webserver) + Postgres (metadata DB)
+# Usage: docker compose up -d → http://localhost:8080 (admin/admin)
+# ─────────────────────────────────────────────────────────────────────
+
 x-airflow-common: &airflow-common
   build:
     context: .

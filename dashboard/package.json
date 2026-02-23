@@ -1,5 +1,12 @@
 {
-  "name": "dashboard",
+  "name": "epl-analytics-dashboard",
+  "description": "Next.js 14 dashboard for the EPL Analytics Pipeline — live scores, points race, form momentum, data quality, and lineage visualization",
+  "author": "Andres Alvarez",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StarLord598/epl-pipeline"
+  },
   "version": "0.1.0",
   "private": true,
   "scripts": {
