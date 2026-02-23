@@ -10,7 +10,7 @@
     "away_score": 0,
     "competition": "Premier League",
     "matchday": 8,
-    "ingested_at": "2026-02-23T17:00:37.224570"
+    "ingested_at": "2026-02-23T17:45:03.375055"
   },
   {
     "match_id": "538053",
@@ -23,7 +23,7 @@
     "away_score": 4,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T17:00:37.224570"
+    "ingested_at": "2026-02-23T17:45:03.375055"
   },
   {
     "match_id": "538045",
@@ -36,7 +36,7 @@
     "away_score": 3,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T17:00:37.224570"
+    "ingested_at": "2026-02-23T17:45:03.375055"
   },
   {
     "match_id": "538047",
@@ -49,7 +49,7 @@
     "away_score": 0,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T17:00:37.224570"
+    "ingested_at": "2026-02-23T17:45:03.375055"
   },
   {
     "match_id": "538052",
@@ -62,6 +62,6 @@
     "away_score": 1,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T17:00:37.224570"
+    "ingested_at": "2026-02-23T17:45:03.375055"
   }
 ]

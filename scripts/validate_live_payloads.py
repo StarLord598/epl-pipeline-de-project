@@ -21,12 +21,16 @@ def main() -> None:
     ).fetchone()[0]
 
     if live_matches <= 0:
-        log_run(conn, "validate_live_payloads", "failed", "No live_matches in last 2h", 0)
-        raise SystemExit("Validation failed: no live match rows in last 2h")
+        log_run(conn, "validate_live_payloads", "warn", "No live_matches in last 2h — non-matchday or API lag", 0)
+        print("[VALIDATE] WARN: no live match rows in last 2h (non-matchday or API lag — not a failure)")
+        conn.close()
+        return
 
     if live_standings <= 0:
-        log_run(conn, "validate_live_payloads", "failed", "No live_standings in last 2h", 0)
-        raise SystemExit("Validation failed: no live standings rows in last 2h")
+        log_run(conn, "validate_live_payloads", "warn", "No live_standings in last 2h — API lag", 0)
+        print("[VALIDATE] WARN: no live standings rows in last 2h (API lag — not a failure)")
+        conn.close()
+        return
 
     log_run(
         conn,

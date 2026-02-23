@@ -33,7 +33,7 @@ with DAG(
 
     run_dbt_live_silver = BashOperator(
         task_id="run_dbt_live_silver",
-        bash_command="cd /opt/airflow/dbt && dbt run --select silver_live_match_state ",
+        bash_command="cd /opt/airflow/dbt && dbt run --select stg_live_standings stg_live_matches mart_live_league_table mart_live_matches --profiles-dir /opt/airflow/dbt ",
     )
 
     run_monitoring_checks = BashOperator(

@@ -458,7 +458,7 @@
   {
     "position":25,
     "team_id":0,
-    "team_name":"Bolton Wanderers",
+    "team_name":"Everton",
     "played":2,
     "won":0.0,
     "drawn":1.0,
@@ -477,7 +477,7 @@
   {
     "position":26,
     "team_id":0,
-    "team_name":"Leicester City",
+    "team_name":"Charlton Athletic",
     "played":2,
     "won":0.0,
     "drawn":1.0,
@@ -496,7 +496,7 @@
   {
     "position":27,
     "team_id":0,
-    "team_name":"Newcastle United",
+    "team_name":"Bolton Wanderers",
     "played":2,
     "won":0.0,
     "drawn":1.0,
@@ -515,7 +515,7 @@
   {
     "position":28,
     "team_id":0,
-    "team_name":"Everton",
+    "team_name":"Leicester City",
     "played":2,
     "won":0.0,
     "drawn":1.0,
@@ -534,7 +534,7 @@
   {
     "position":29,
     "team_id":0,
-    "team_name":"Charlton Athletic",
+    "team_name":"Newcastle United",
     "played":2,
     "won":0.0,
     "drawn":1.0,
