@@ -5,10 +5,20 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
+
+_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _safe_id(name: str) -> str:
+    """Validate and quote a SQL identifier to prevent injection."""
+    if not _IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return f'"{name}"'
 
 
 def sanitize(records: list[dict]) -> list[dict]:
@@ -29,13 +39,13 @@ def main() -> None:
     # Table-level metrics
     tables = []
     for schema in ["raw", "staging", "mart"]:
-        for row in conn.execute(f"""
+        for row in conn.execute("""
             SELECT table_name, estimated_size, column_count
             FROM duckdb_tables()
-            WHERE schema_name = '{schema}'
-        """).fetchall():
+            WHERE schema_name = ?
+        """, [schema]).fetchall():
             # Get row count
-            count = conn.execute(f'SELECT COUNT(*) FROM {schema}."{row[0]}"').fetchone()[0]
+            count = conn.execute(f"SELECT COUNT(*) FROM {_safe_id(schema)}.{_safe_id(row[0])}").fetchone()[0]
             tables.append({
                 "schema": schema,
                 "table": row[0],
@@ -49,7 +59,7 @@ def main() -> None:
         SELECT view_name as table_name FROM duckdb_views()
         WHERE schema_name = 'staging'
     """).fetchall():
-        count = conn.execute(f'SELECT COUNT(*) FROM staging."{row[0]}"').fetchone()[0]
+        count = conn.execute(f"SELECT COUNT(*) FROM {_safe_id('staging')}.{_safe_id(row[0])}").fetchone()[0]
         tables.append({
             "schema": "staging",
             "table": row[0],

@@ -26,15 +26,27 @@ export async function GET(request: NextRequest) {
 
     const teams = searchParams.get("teams");
     if (teams) {
-      const teamList = teams.split(",").map((t) => t.trim().toLowerCase());
+      const teamList = teams.slice(0, 500).split(",").map((t) => t.trim().toLowerCase());
       data = data.filter((r) => teamList.includes(r.team_name.toLowerCase()));
     }
 
     const from = searchParams.get("from");
-    if (from) data = data.filter((r) => r.matchday >= parseInt(from));
+    if (from) {
+      const fromVal = parseInt(from, 10);
+      if (!isNaN(fromVal)) {
+        const clamped = Math.max(1, Math.min(fromVal, 38));
+        data = data.filter((r) => r.matchday >= clamped);
+      }
+    }
 
     const to = searchParams.get("to");
-    if (to) data = data.filter((r) => r.matchday <= parseInt(to));
+    if (to) {
+      const toVal = parseInt(to, 10);
+      if (!isNaN(toVal)) {
+        const clamped = Math.max(1, Math.min(toVal, 38));
+        data = data.filter((r) => r.matchday <= clamped);
+      }
+    }
 
     return NextResponse.json({
       count: data.length,
@@ -43,7 +55,7 @@ export async function GET(request: NextRequest) {
       headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
     });
   } catch (error) {
-    console.error("[/api/race]", error);
+    console.error("[/api/race]", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

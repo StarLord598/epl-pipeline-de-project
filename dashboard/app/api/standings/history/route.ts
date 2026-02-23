@@ -26,12 +26,17 @@ export async function GET(request: NextRequest) {
 
     const team = searchParams.get("team");
     if (team) {
-      data = data.filter((r) => r.team_name.toLowerCase() === team.toLowerCase());
+      const teamVal = team.slice(0, 100);
+      data = data.filter((r) => r.team_name.toLowerCase() === teamVal.toLowerCase());
     }
 
     const matchday = searchParams.get("matchday");
     if (matchday) {
-      data = data.filter((r) => r.matchday === parseInt(matchday));
+      const mdVal = parseInt(matchday, 10);
+      if (!isNaN(mdVal)) {
+        const clamped = Math.max(1, Math.min(mdVal, 38));
+        data = data.filter((r) => r.matchday === clamped);
+      }
     }
 
     const changesOnly = searchParams.get("changes_only");
@@ -46,7 +51,7 @@ export async function GET(request: NextRequest) {
       headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
     });
   } catch (error) {
-    console.error("[/api/standings/history]", error);
+    console.error("[/api/standings/history]", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
