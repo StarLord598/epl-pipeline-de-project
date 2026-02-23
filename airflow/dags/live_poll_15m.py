@@ -1,11 +1,26 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import ShortCircuitOperator
 
 default_args = {
     "retries": 3,
     "retry_delay": timedelta(seconds=30),
 }
+
+
+def check_matchday(**context):
+    """Skip live polling on non-matchdays to avoid wasted API calls."""
+    import subprocess
+    result = subprocess.run(
+        ["python", "scripts/is_matchday.py"],
+        capture_output=True, text=True, cwd="/opt/airflow"
+    )
+    is_matchday = result.stdout.strip() == "true"
+    if not is_matchday:
+        print("Non-matchday — skipping live poll")
+    return is_matchday
+
 
 with DAG(
     dag_id="live_poll_15m",
@@ -16,6 +31,11 @@ with DAG(
     tags=["live", "epl", "portfolio"],
     default_args=default_args,
 ) as dag:
+    matchday_check = ShortCircuitOperator(
+        task_id="matchday_check",
+        python_callable=check_matchday,
+    )
+
     fetch_matches_live = BashOperator(
         task_id="fetch_matches_live",
         bash_command="cd /opt/airflow && python scripts/ingest_live_matches.py ",
@@ -46,4 +66,4 @@ with DAG(
         bash_command="cd /opt/airflow && python scripts/export_live_json.py || true ",
     )
 
-    fetch_matches_live >> fetch_standings_live >> validate_raw_payloads >> run_dbt_live_silver >> run_monitoring_checks >> export_live_json
+    matchday_check >> fetch_matches_live >> fetch_standings_live >> validate_raw_payloads >> run_dbt_live_silver >> run_monitoring_checks >> export_live_json

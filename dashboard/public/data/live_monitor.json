@@ -1,8 +1,8 @@
 {
-  "active_match_count": 37,
-  "last_ingested_at": "2026-02-23 17:24:13.491784",
+  "active_match_count": 407,
+  "last_ingested_at": "2026-02-23 18:02:07.200862",
   "freshness_minutes": 0,
   "freshness_status": "PASS_MATCHDAY_SLA",
-  "computed_at": "2026-02-23 17:24:21.112000+00:00",
-  "exported_at": "2026-02-23T17:24:22.986267"
+  "computed_at": "2026-02-23 18:02:15.211000+00:00",
+  "exported_at": "2026-02-23T18:02:17.509277"
 }
