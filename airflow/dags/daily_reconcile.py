@@ -6,7 +6,7 @@ Goal: daily full rebuild to prove batch + quality + serving.
 - Run live pipeline (for health)
 - Export dashboard JSON
 
-Local-first (DuckDB), designed to lift-and-shift to BigQuery/Composer later.
+Local-first (DuckDB), designed for reproducible local development.
 """
 
 from __future__ import annotations

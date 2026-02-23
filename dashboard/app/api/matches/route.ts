@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getMatches } from "@/lib/bigquery";
+import { getMatches } from "@/lib/local";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 300;

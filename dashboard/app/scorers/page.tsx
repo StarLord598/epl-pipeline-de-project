@@ -38,7 +38,7 @@ export default function ScorersPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-gray-400 p-8">Loading from BigQuery…</div>;
+  if (loading) return <div className="text-gray-400 p-8">Loading…</div>;
 
   const top3 = scorers.slice(0, 3);
 

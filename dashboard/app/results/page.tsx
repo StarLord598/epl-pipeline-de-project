@@ -54,7 +54,7 @@ export default function ResultsPage() {
     .map(Number)
     .sort((a, b) => b - a);  // most recent first
 
-  if (loading) return <div className="text-gray-400 p-8">Loading from BigQuery…</div>;
+  if (loading) return <div className="text-gray-400 p-8">Loading…</div>;
 
   return (
     <div>
