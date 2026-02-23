@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/",           label: "Table",    icon: "🏆" },
+  { href: "/race",       label: "Race",     icon: "📈" },
+  { href: "/form",       label: "Form",     icon: "🔥" },
   { href: "/live",       label: "Live",     icon: "⚡" },
   { href: "/results",    label: "Results",  icon: "⚽" },
   { href: "/scorers",    label: "Scorers",  icon: "🎯" },
