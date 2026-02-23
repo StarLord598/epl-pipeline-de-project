@@ -299,3 +299,116 @@ models:
         description: "LIVE (matches in play), COMPLETED, IN_PROGRESS (partially complete), or UPCOMING"
       - name: is_active_window
         description: "Boolean: true if today is within ±1 day of this matchday's date range. Used for DAG scheduling."
+
+  - name: mart_match_events
+    description: >
+      Match events enriched with match context (teams, score, date). Joins raw.events
+      with raw.matches to provide full context per event. Used for team/player detail pages.
+    columns:
+      - name: event_id
+        description: "Unique event identifier from StatsBomb"
+      - name: match_id
+        description: "Foreign key to raw.matches"
+      - name: period
+        description: "Match period (1 = first half, 2 = second half)"
+      - name: minute
+        description: "Minute the event occurred"
+      - name: second
+        description: "Second within the minute"
+      - name: event_type
+        description: "Event type (Pass, Shot, Tackle, Goal, etc.)"
+      - name: player_name
+        description: "Player who performed the event"
+      - name: team_name
+        description: "Team that performed the event"
+      - name: position_name
+        description: "Player's position at the time"
+      - name: location_x
+        description: "X coordinate on the pitch (0-120 yards)"
+      - name: location_y
+        description: "Y coordinate on the pitch (0-80 yards)"
+      - name: sub_type
+        description: "Event sub-type for further classification"
+      - name: outcome
+        description: "Outcome of the event (Complete, Saved, Goal, etc.)"
+      - name: home_team_name
+        description: "Home team in the match"
+      - name: away_team_name
+        description: "Away team in the match"
+      - name: home_score
+        description: "Final home score"
+      - name: away_score
+        description: "Final away score"
+      - name: match_date
+        description: "Date the match was played"
+
+  - name: mart_team_stats
+    description: >
+      Aggregated team statistics combining standings with match-level performance.
+      Used by the Stats page for team comparison radar charts.
+    columns:
+      - name: position
+        description: "League position"
+      - name: team_id
+        description: "Surrogate team key"
+      - name: team_name
+        description: "Team name"
+      - name: played
+        description: "Matches played"
+      - name: won
+        description: "Matches won"
+      - name: drawn
+        description: "Matches drawn"
+      - name: lost
+        description: "Matches lost"
+      - name: points
+        description: "Total league points"
+      - name: goals_for
+        description: "Total goals scored"
+      - name: goals_against
+        description: "Total goals conceded"
+      - name: goal_difference
+        description: "GF minus GA"
+      - name: win_rate
+        description: "Win percentage as decimal"
+      - name: points_pct
+        description: "Points as percentage of maximum possible"
+      - name: goals_per_game
+        description: "Average goals scored per match"
+      - name: goals_conceded_per_game
+        description: "Average goals conceded per match"
+      - name: total_wins
+        description: "Alias for won (backward compatibility)"
+      - name: total_matches
+        description: "Alias for played (backward compatibility)"
+
+  - name: mart_team_form
+    description: >
+      Recent form string per team — last N match results as a comma-separated string.
+      Used by team detail pages to show recent form badges.
+    columns:
+      - name: team_id
+        description: "Surrogate team key"
+      - name: team_name
+        description: "Team name"
+      - name: form_string
+        description: "Recent results as string (e.g., 'W,W,D,L,W')"
+      - name: recent_matches
+        description: "Number of recent matches included in the form string"
+
+  - name: gold_live_match_monitor
+    description: >
+      Operational monitoring table — tracks live match ingestion freshness.
+      Shows active match count, last ingest time, and freshness status.
+      Used by the health page and alerting checks.
+    columns:
+      - name: active_match_count
+        description: "Number of matches with recent ingest activity"
+      - name: last_ingested_at
+        description: "Timestamp of the most recent ingest across all matches"
+      - name: freshness_minutes
+        description: "Minutes since last ingest"
+      - name: freshness_status
+        description: "OK, STALE, or CRITICAL based on freshness thresholds"
+      - name: computed_at
+        description: "Timestamp when this monitoring row was computed"
