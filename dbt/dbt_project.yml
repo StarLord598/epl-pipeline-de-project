@@ -11,7 +11,7 @@ target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
 vars:
-  project_id: cedar-style-487221-a3
+  project_id: "{{ env_var('GCP_PROJECT_ID', 'your-gcp-project-id') }}"
   bq_location: US
 
 models:

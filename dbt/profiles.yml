@@ -14,7 +14,7 @@ epl_pipeline:
     prod:
       type: bigquery
       method: service-account
-      project: cedar-style-487221-a3
+      project: {{ env_var("GCP_PROJECT_ID", "your-gcp-project-id") }}
       dataset: epl_staging
       threads: 4
       timeout_seconds: 300
@@ -24,7 +24,7 @@ epl_pipeline:
     dev:
       type: bigquery
       method: oauth
-      project: cedar-style-487221-a3
+      project: {{ env_var("GCP_PROJECT_ID", "your-gcp-project-id") }}
       dataset: epl_staging_dev
       threads: 4
       timeout_seconds: 300

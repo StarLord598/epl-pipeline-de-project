@@ -1,3 +1,3 @@
-project_id  = "cedar-style-487221-a3"
+project_id  = "your-gcp-project-id"
 region      = "us-central1"
 bq_location = "US"

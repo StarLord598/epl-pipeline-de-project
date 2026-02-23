@@ -7,7 +7,7 @@ Loads EPL 2023-24 season data into BigQuery:
   - Real 2023-24 top scorers (known stats)
   - StatsBomb Arsenal 2003/04 events & lineups
 
-Target: project=cedar-style-487221-a3, dataset=epl_raw
+Target: project=your-gcp-project-id, dataset=epl_raw
 
 Usage:
     export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gcp-service-account.json
@@ -30,7 +30,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # ── Config ──────────────────────────────────────────────────────────────────────
-PROJECT_ID       = "cedar-style-487221-a3"
+PROJECT_ID       = "your-gcp-project-id"
 DATASET_RAW      = "epl_raw"
 SEASON_ID        = 2324
 COMPETITION_ID   = 2021

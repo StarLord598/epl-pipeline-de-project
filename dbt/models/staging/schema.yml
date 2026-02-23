@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: raw
-    database: "{{ 'cedar-style-487221-a3' if target.type == 'bigquery' else '' }}"
+    database: "{{ 'your-gcp-project-id' if target.type == 'bigquery' else '' }}"
     schema: "{{ 'epl_raw' if target.type == 'bigquery' else 'raw' }}"
     freshness:
       warn_after: {count: 24, period: hour}

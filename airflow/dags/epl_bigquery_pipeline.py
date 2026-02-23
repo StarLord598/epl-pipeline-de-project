@@ -30,7 +30,7 @@ SA_KEY      = REPO_ROOT / "keys" / "epl-pipeline-sa.json"
 ENV = {
     **os.environ,
     "GOOGLE_APPLICATION_CREDENTIALS": str(SA_KEY),
-    "GOOGLE_CLOUD_PROJECT": "cedar-style-487221-a3",
+    "GOOGLE_CLOUD_PROJECT": "your-gcp-project-id",
 }
 
 # ── Try to import Airflow (optional) ────────────────────────────────────────────

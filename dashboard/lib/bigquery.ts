@@ -11,7 +11,7 @@ import { BigQuery } from "@google-cloud/bigquery";
 import path from "path";
 import fs from "fs";
 
-export const PROJECT_ID   = process.env.GCP_PROJECT_ID   ?? "cedar-style-487221-a3";
+export const PROJECT_ID   = process.env.GCP_PROJECT_ID   ?? "your-gcp-project-id";
 export const DATASET_RAW  = process.env.BQ_RAW_DATASET   ?? "epl_raw";
 export const DATASET_MART = process.env.BQ_MART_DATASET  ?? "epl_mart";
 

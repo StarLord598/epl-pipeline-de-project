@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-PROJECT_ID  = "cedar-style-487221-a3"
+PROJECT_ID  = "your-gcp-project-id"
 DATASET_RAW = "epl_raw"
 DATASET_MART = "epl_mart"
 
