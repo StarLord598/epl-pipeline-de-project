@@ -27,6 +27,16 @@ sources:
         description: "Top scorers for the 2023-24 season"
         identifier: top_scorers_2324
         freshness: null
+      - name: live_standings
+        description: "Live EPL standings from football-data.org API (refreshed every 15 min)"
+        freshness:
+          warn_after: {count: 1, period: hour}
+          error_after: {count: 4, period: hour}
+      - name: live_matches
+        description: "Live EPL match data from football-data.org API (refreshed every 15 min)"
+        freshness:
+          warn_after: {count: 1, period: hour}
+          error_after: {count: 4, period: hour}
 
 models:
   - name: stg_matches
@@ -50,3 +60,19 @@ models:
     columns:
       - name: player_id
         tests: [unique, not_null]
+
+  - name: stg_live_standings
+    description: "Cleaned live EPL standings — deduped to latest ingest, normalized names"
+    columns:
+      - name: position
+        tests: [not_null]
+      - name: team_name
+        tests: [unique, not_null]
+      - name: points
+        tests: [not_null]
+
+  - name: stg_live_matches
+    description: "Cleaned live EPL matches — normalized statuses, EPL-only filter"
+    columns:
+      - name: match_id
+        tests: [not_null]

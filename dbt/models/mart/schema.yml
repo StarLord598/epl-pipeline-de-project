@@ -24,3 +24,21 @@ models:
     columns:
       - name: match_id
         tests: [unique, not_null]
+
+  - name: mart_live_league_table
+    description: "Live EPL league table (Gold) — sourced from silver stg_live_standings"
+    columns:
+      - name: team_name
+        tests: [unique, not_null]
+      - name: position
+        tests: [not_null]
+      - name: points
+        tests: [not_null]
+      - name: qualification_zone
+        description: "CL, EL, Conference League, or Relegation zone"
+
+  - name: mart_live_matches
+    description: "Live EPL matches (Gold) — sourced from silver stg_live_matches"
+    columns:
+      - name: match_id
+        tests: [not_null]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export live match + standings data → dashboard JSON.
 
-Reads from DuckDB raw.live_matches / raw.live_standings,
+Reads from DuckDB Gold mart tables (mart.mart_live_matches / mart.mart_live_league_table),
 falls back to football-data.org API if DB is empty.
 
 Output:
@@ -58,31 +58,25 @@ def export_from_duckdb():
 
     con = duckdb.connect(str(DB_PATH), read_only=True)
 
-    # Live matches — filter to Premier League only
+    # Live matches — read from Gold mart (medallion architecture)
     try:
         matches_df = con.sql("""
-            SELECT DISTINCT ON (match_id)
+            SELECT
                 match_id,
                 utc_date,
                 status,
                 minute,
-                home_team_name AS home_team,
-                away_team_name AS away_team,
+                home_team,
+                away_team,
                 home_score,
                 away_score,
                 competition,
-                COALESCE(TRY_CAST(raw_json::JSON->>'$.intRound' AS INTEGER), 0) AS matchday,
-                source,
+                matchday,
                 ingested_at
-            FROM raw.live_matches
-            WHERE (
-                competition ILIKE '%premier%'
-                OR competition ILIKE '%PL%'
-                OR source = 'football-data.org'
-            )
-            AND utc_date >= CURRENT_DATE - INTERVAL '1 day'
-            AND utc_date <= CURRENT_DATE + INTERVAL '3 days'
-            ORDER BY match_id, ingested_at DESC
+            FROM mart.mart_live_matches
+            WHERE utc_date >= CURRENT_DATE - INTERVAL '1 day'
+              AND utc_date <= CURRENT_DATE + INTERVAL '3 days'
+            ORDER BY utc_date DESC
         """).df()
 
         if len(matches_df) > 0:
@@ -97,27 +91,27 @@ def export_from_duckdb():
         log.warning(f"  live_matches query failed: {e}")
         return False
 
-    # Live standings
+    # Live standings — read from Gold mart (medallion architecture)
     try:
         standings_df = con.sql("""
-            WITH latest AS (
-                SELECT *, ROW_NUMBER() OVER (PARTITION BY team_name ORDER BY ingested_at DESC) AS rn
-                FROM raw.live_standings
-                WHERE source = 'football-data.org'
-            )
             SELECT
                 position,
                 team_name,
                 played,
                 won,
-                draw AS drawn,
+                drawn,
                 lost,
                 points,
                 goals_for,
                 goals_against,
-                goal_difference
-            FROM latest
-            WHERE rn = 1
+                goal_difference,
+                win_rate,
+                points_pct,
+                goals_per_game,
+                goals_conceded_per_game,
+                qualification_zone,
+                form
+            FROM mart.mart_live_league_table
             ORDER BY position
         """).df()
 
