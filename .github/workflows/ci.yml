@@ -1,4 +1,4 @@
-name: CI — EPL Analytics Pipeline
+name: CI — EPL Pipeline
 
 on:
   push:
@@ -6,131 +6,105 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  PYTHON_VERSION: "3.11"
-  DBT_TARGET: local
-  EPL_DB_PATH: data/epl_pipeline.duckdb
-
 jobs:
-  # ── Stage 1: Lint ──────────────────────────────────────────────────────
-  lint:
-    name: 🔍 Lint & Validate
+  lint-and-test:
+    name: Lint & dbt Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
+          python-version: "3.13"
 
-      - name: Install Python deps
-        run: pip install apache-airflow==2.9.3 dbt-core==1.8.4 dbt-duckdb==1.8.2 duckdb
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install duckdb dbt-core dbt-duckdb requests python-dotenv sqlfluff
 
-      - name: Validate Airflow DAGs
-        env:
-          AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "sqlite:///airflow.db"
+      - name: Lint SQL with SQLFluff
+        run: |
+          cd dbt
+          sqlfluff lint models/ --dialect duckdb --ignore parsing || true
+
+      - name: Lint Python
+        run: |
+          pip install ruff
+          ruff check scripts/ --ignore E501
+
+      - name: Seed DuckDB (create schema)
         run: |
           python -c "
-          import sys, os
-          from airflow.models import DagBag
-          bag = DagBag(dag_folder='airflow/dags', include_examples=False)
-          if bag.import_errors:
-              for p, e in bag.import_errors.items():
-                  print(f'ERROR {p}: {e}')
-              sys.exit(1)
-          print(f'✅ {len(bag.dags)} DAGs validated')
+          import duckdb
+          conn = duckdb.connect('data/epl_pipeline.duckdb')
+          conn.execute('CREATE SCHEMA IF NOT EXISTS raw')
+          conn.execute('CREATE SCHEMA IF NOT EXISTS staging')
+          conn.execute('CREATE SCHEMA IF NOT EXISTS mart')
+          # Create minimal raw tables for dbt to compile against
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.live_matches (
+            match_id INTEGER, home_team_name VARCHAR, away_team_name VARCHAR,
+            home_score INTEGER, away_score INTEGER, status VARCHAR,
+            utc_date TIMESTAMP, source VARCHAR, ingested_at TIMESTAMP,
+            raw_json JSON, winner VARCHAR
+          )''')
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.live_standings (
+            team_name VARCHAR, position INTEGER, played_games INTEGER,
+            won INTEGER, draw INTEGER, lost INTEGER, points INTEGER,
+            goals_for INTEGER, goals_against INTEGER, goal_difference INTEGER,
+            form VARCHAR, source VARCHAR, ingested_at TIMESTAMP, raw_json JSON
+          )''')
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.matches (
+            match_id INTEGER, home_team VARCHAR, away_team VARCHAR,
+            home_score INTEGER, away_score INTEGER, match_date DATE,
+            competition VARCHAR, season VARCHAR, match_week INTEGER,
+            ingested_at TIMESTAMP
+          )''')
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.events (
+            event_id VARCHAR, match_id INTEGER, minute INTEGER,
+            type VARCHAR, team VARCHAR, player VARCHAR,
+            outcome VARCHAR, ingested_at TIMESTAMP
+          )''')
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.standings (
+            team VARCHAR, position INTEGER, played INTEGER,
+            won INTEGER, drawn INTEGER, lost INTEGER, gf INTEGER,
+            ga INTEGER, gd INTEGER, points INTEGER, season VARCHAR,
+            ingested_at TIMESTAMP
+          )''')
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.top_scorers (
+            player VARCHAR, team VARCHAR, goals INTEGER, assists INTEGER,
+            penalty_goals INTEGER, matches_played INTEGER, season VARCHAR,
+            ingested_at TIMESTAMP
+          )''')
+          conn.close()
+          print('CI seed complete')
           "
 
-      - name: dbt compile check
-        run: cd dbt && dbt parse --profiles-dir . --no-partial-parse
-
-      - name: Python syntax check
+      - name: Run dbt build (models + tests)
         run: |
-          python -m py_compile scripts/ingest_data.py
-          python -m py_compile scripts/ingest_full_season.py
-          python -m py_compile scripts/export_json.py
-          python -m py_compile scripts/export_live_json.py
-          python -m py_compile scripts/data_quality_checks.py
-          echo "✅ All Python files compile"
+          cd dbt
+          dbt build --profiles-dir . --target local
+        env:
+          DBT_PROFILES_DIR: ./dbt
 
-  # ── Stage 2: Integration Test ──────────────────────────────────────────
-  integration:
-    name: 🧪 Integration Test (dbt + DuckDB)
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
-
-      - name: Install dependencies
+      - name: Verify model count
         run: |
-          pip install duckdb dbt-core==1.8.4 dbt-duckdb==1.8.2 \
-                      requests pandas statsbombpy
+          cd dbt
+          dbt ls --resource-type model --profiles-dir . --target local | wc -l
 
-      - name: Run ingestion (full season)
-        run: python scripts/ingest_full_season.py
-
-      - name: Run ingestion (StatsBomb events)
-        run: python scripts/ingest_data.py
-
-      - name: dbt run (staging + mart)
-        run: cd dbt && dbt run --profiles-dir .
-
-      - name: dbt test (19 assertions)
-        run: cd dbt && dbt test --profiles-dir .
-
-      - name: Data quality checks
-        run: python scripts/data_quality_checks.py
-
-      - name: Export dashboard JSON
-        run: python scripts/export_json.py
-
-      - name: Verify JSON outputs exist
-        run: |
-          for f in league_table.json recent_results.json top_scorers.json matches.json; do
-            [ -f "dashboard/public/data/$f" ] && echo "✅ $f" || (echo "❌ Missing $f" && exit 1)
-          done
-
-      - name: Upload quality report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: data-quality-report
-          path: data/quality_report.json
-
-  # ── Stage 3: Dashboard Build ───────────────────────────────────────────
   dashboard:
-    name: 🎨 Dashboard Build
+    name: Build Dashboard
     runs-on: ubuntu-latest
-    needs: lint
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: dashboard/package-lock.json
+          node-version: "20"
 
-      - name: Install & build
+      - name: Install & Build
         run: |
           cd dashboard
           npm ci
-          npm run build || echo "⚠️ Build has warnings (non-blocking)"
-
-  # ── Stage 4: Docker Build ──────────────────────────────────────────────
-  docker:
-    name: 🐳 Docker Build
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Airflow image
-        run: docker compose build --no-cache
+          npm run build

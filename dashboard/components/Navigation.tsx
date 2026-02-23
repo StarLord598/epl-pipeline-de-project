@@ -11,6 +11,8 @@ const navItems = [
   { href: "/results",    label: "Results",  icon: "⚽" },
   { href: "/scorers",    label: "Scorers",  icon: "🎯" },
   { href: "/stats",      label: "Stats",    icon: "📊" },
+  { href: "/quality",   label: "Quality",  icon: "🛡️" },
+  { href: "/lineage",   label: "Lineage",  icon: "🔗" },
 ];
 
 export default function Navigation() {

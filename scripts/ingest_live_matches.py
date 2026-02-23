@@ -92,10 +92,24 @@ def main() -> None:
 
     rows: list[dict[str, Any]] = []
     source_used = ""
+    raw_matches: list[dict] = []  # for contract validation
     try:
         if api_key and api_key != "your-key-from-football-data.org":
             rows = fetch_football_data_org(api_key)
             source_used = "football-data.org"
+            # Schema contract validation
+            try:
+                from contracts import validate_matches
+                raw_matches = [json.loads(r["raw_json"]) for r in rows if r.get("raw_json")]
+                result = validate_matches(raw_matches)
+                if not result.valid:
+                    print(f"  ⚠️  Contract validation FAILED: {result.records_passed}/{result.records_checked} records OK")
+                    for v in result.violations[:5]:
+                        print(f"      [{v.severity}] {v.field}: {v.message}")
+                else:
+                    print(f"  ✅ Contract validated: {result.records_passed}/{result.records_checked} records OK")
+            except ImportError:
+                pass  # contracts module not available in Docker yet
         else:
             rows = fetch_thesportsdb_fallback()
             source_used = "thesportsdb"

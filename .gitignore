@@ -35,3 +35,6 @@ dashboard/.next/
 .DS_Store
 data/quality_report.json
 _cloud_archive/
+
+# dbt docs (generated, regenerate with make docs)
+dashboard/public/lineage/

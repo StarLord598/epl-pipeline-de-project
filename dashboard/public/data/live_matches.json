@@ -10,7 +10,7 @@
     "away_score": 0,
     "competition": "Premier League",
     "matchday": 8,
-    "ingested_at": "2026-02-23T18:30:09.938375"
+    "ingested_at": "2026-02-23T19:00:14.083667"
   },
   {
     "match_id": "538053",
@@ -23,20 +23,7 @@
     "away_score": 4,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T18:30:09.938375"
-  },
-  {
-    "match_id": "538052",
-    "utc_date": "2026-02-22T14:00:00",
-    "status": "FINISHED",
-    "minute": null,
-    "home_team": "Nottingham Forest",
-    "away_team": "Liverpool",
-    "home_score": 0,
-    "away_score": 1,
-    "competition": "Premier League",
-    "matchday": 7,
-    "ingested_at": "2026-02-23T18:30:09.938375"
+    "ingested_at": "2026-02-23T19:00:14.083667"
   },
   {
     "match_id": "538045",
@@ -49,7 +36,20 @@
     "away_score": 3,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T18:30:09.938375"
+    "ingested_at": "2026-02-23T19:00:14.083667"
+  },
+  {
+    "match_id": "538052",
+    "utc_date": "2026-02-22T14:00:00",
+    "status": "FINISHED",
+    "minute": null,
+    "home_team": "Nottingham Forest",
+    "away_team": "Liverpool",
+    "home_score": 0,
+    "away_score": 1,
+    "competition": "Premier League",
+    "matchday": 7,
+    "ingested_at": "2026-02-23T19:00:14.083667"
   },
   {
     "match_id": "538047",
@@ -62,6 +62,6 @@
     "away_score": 0,
     "competition": "Premier League",
     "matchday": 7,
-    "ingested_at": "2026-02-23T18:30:09.938375"
+    "ingested_at": "2026-02-23T19:00:14.083667"
   }
 ]
