@@ -109,7 +109,7 @@ def main() -> None:
                 else:
                     print(f"  ✅ Contract validated: {result.records_passed}/{result.records_checked} records OK")
             except ImportError:
-                pass  # contracts module not available in Docker yet
+                print("  ⚠️  Contract validation skipped: contracts module not available")
         else:
             rows = fetch_thesportsdb_fallback()
             source_used = "thesportsdb"

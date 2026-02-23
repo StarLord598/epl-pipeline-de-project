@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -16,15 +15,9 @@ ENV_PATH = BASE_DIR / ".env"
 
 
 def load_env_file() -> None:
-    if not ENV_PATH.exists():
-        return
-    for line in ENV_PATH.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        if k and k not in os.environ:
-            os.environ[k] = v.strip().strip('"').strip("'")
+    from dotenv import load_dotenv
+
+    load_dotenv(ENV_PATH)
 
 
 def now_iso() -> str:

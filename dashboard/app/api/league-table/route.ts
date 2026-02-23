@@ -28,7 +28,7 @@ export async function GET() {
 
     return NextResponse.json([], { status: 200 });
   } catch (error) {
-    console.error("[/api/league-table]", error);
+    console.error("[/api/league-table]", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Failed to fetch league table" }, { status: 500 });
   }
 }

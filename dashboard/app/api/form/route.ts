@@ -25,12 +25,14 @@ export async function GET(request: NextRequest) {
 
     const team = searchParams.get("team");
     if (team) {
-      data = data.filter((r) => r.team_name.toLowerCase() === team.toLowerCase());
+      const teamVal = team.slice(0, 100);
+      data = data.filter((r) => r.team_name.toLowerCase() === teamVal.toLowerCase());
     }
 
     const momentum = searchParams.get("momentum");
     if (momentum) {
-      data = data.filter((r) => r.current_momentum === momentum.toUpperCase());
+      const momentumVal = momentum.slice(0, 20).toUpperCase();
+      data = data.filter((r) => r.current_momentum === momentumVal);
     }
 
     return NextResponse.json({
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
       headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
     });
   } catch (error) {
-    console.error("[/api/form]", error);
+    console.error("[/api/form]", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

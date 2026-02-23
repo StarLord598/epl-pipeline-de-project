@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -30,6 +31,25 @@ log = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = Path(os.getenv("EPL_DB_PATH", str(REPO_ROOT / "data" / "epl_pipeline.duckdb")))
+
+_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _safe_id(name: str) -> str:
+    """Validate and quote a SQL identifier to prevent injection."""
+    if not _IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return f'"{name}"'
+
+
+def _safe_table_ref(qualified_name: str) -> str:
+    """Validate and quote a 'schema.table' or 'table' reference."""
+    parts = qualified_name.split(".")
+    if len(parts) == 2:
+        return f"{_safe_id(parts[0])}.{_safe_id(parts[1])}"
+    if len(parts) == 1:
+        return _safe_id(parts[0])
+    raise ValueError(f"Invalid table reference: {qualified_name!r}")
 
 
 @dataclass
@@ -124,7 +144,7 @@ def run_checks():
     for schema, tables in expected_tables.items():
         for table in tables:
             try:
-                count = con.execute(f"SELECT COUNT(*) FROM {schema}.{table}").fetchone()[0]
+                count = con.execute(f"SELECT COUNT(*) FROM {_safe_id(schema)}.{_safe_id(table)}").fetchone()[0]
                 report.add(CheckResult(
                     name=f"{schema}.{table} exists",
                     category="schema",
@@ -155,7 +175,7 @@ def run_checks():
 
     for table, min_rows, severity, desc in row_checks:
         try:
-            count = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+            count = con.execute(f"SELECT COUNT(*) FROM {_safe_table_ref(table)}").fetchone()[0]
             report.add(CheckResult(
                 name=f"{table} ≥ {min_rows:,}",
                 category="row_count",
@@ -185,8 +205,8 @@ def run_checks():
 
     for table, col in unique_checks:
         try:
-            total = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            distinct = con.execute(f"SELECT COUNT(DISTINCT {col}) FROM {table}").fetchone()[0]
+            total = con.execute(f"SELECT COUNT(*) FROM {_safe_table_ref(table)}").fetchone()[0]
+            distinct = con.execute(f"SELECT COUNT(DISTINCT {_safe_id(col)}) FROM {_safe_table_ref(table)}").fetchone()[0]
             report.add(CheckResult(
                 name=f"{table}.{col} unique",
                 category="uniqueness",
@@ -219,7 +239,7 @@ def run_checks():
 
     for table, col in null_checks:
         try:
-            nulls = con.execute(f"SELECT COUNT(*) FROM {table} WHERE {col} IS NULL").fetchone()[0]
+            nulls = con.execute(f"SELECT COUNT(*) FROM {_safe_table_ref(table)} WHERE {_safe_id(col)} IS NULL").fetchone()[0]
             report.add(CheckResult(
                 name=f"{table}.{col} not null",
                 category="completeness",

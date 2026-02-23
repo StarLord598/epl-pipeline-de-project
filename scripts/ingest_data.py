@@ -7,6 +7,7 @@ Stores everything in DuckDB (medallion architecture: raw → staging → mart).
 """
 
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -21,6 +22,15 @@ DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "epl_pipeline.duckdb"
 RAW_DIR = DATA_DIR / "raw"
 LOG_PREFIX = "[EPL-INGEST]"
+
+_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _safe_id(name: str) -> str:
+    """Validate and quote a SQL identifier to prevent injection."""
+    if not _IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return f'"{name}"'
 
 
 def log(msg: str):
@@ -560,7 +570,7 @@ def build_mart(conn: duckdb.DuckDBPyConnection):
     tables = ["mart_league_table", "mart_recent_results", "mart_top_scorers",
               "mart_team_stats", "mart_match_events"]
     for t in tables:
-        cnt = conn.execute(f"SELECT COUNT(*) FROM mart.{t}").fetchone()[0]
+        cnt = conn.execute(f"SELECT COUNT(*) FROM {_safe_id('mart')}.{_safe_id(t)}").fetchone()[0]
         log(f"  ✓ mart.{t}: {cnt} rows")
 
 

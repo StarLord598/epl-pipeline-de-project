@@ -12,14 +12,14 @@ x-airflow-common: &airflow-common
     dockerfile: infra/docker/Dockerfile.airflow
   env_file: .env
   volumes:
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/plugins:/opt/airflow/plugins
-    - ./airflow/include:/opt/airflow/include
-    - ./airflow/tests:/opt/airflow/tests
+    - ./airflow/dags:/opt/airflow/dags:ro
+    - ./airflow/plugins:/opt/airflow/plugins:ro
+    - ./airflow/include:/opt/airflow/include:ro
+    - ./airflow/tests:/opt/airflow/tests:ro
     - ./dbt:/opt/airflow/dbt
-    - ./scripts:/opt/airflow/scripts
+    - ./scripts:/opt/airflow/scripts:ro
     - ./data:/opt/airflow/data
-    - ./dashboard:/opt/airflow/dashboard
+    - ./dashboard:/opt/airflow/dashboard:ro
     - ./keys:/opt/airflow/keys:ro
   depends_on:
     postgres:
@@ -29,11 +29,11 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: ${POSTGRES_USER:-airflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-airflow}
+      POSTGRES_DB: ${POSTGRES_DB:-airflow}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -55,7 +55,7 @@ services:
     <<: *airflow-common
     command: airflow webserver --port 8080
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
