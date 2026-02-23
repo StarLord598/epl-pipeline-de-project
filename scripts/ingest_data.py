@@ -7,14 +7,12 @@ Stores everything in DuckDB (medallion architecture: raw → staging → mart).
 """
 
 import json
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
 
 import duckdb
 import pandas as pd
-import requests
 from statsbombpy import sb
 
 # ── Paths ──────────────────────────────────────────────────────────────────────

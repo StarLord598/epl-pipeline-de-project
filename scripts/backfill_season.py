@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 import os
 import sys
-import time
 from datetime import UTC, datetime
 from typing import Any
 

@@ -21,10 +21,11 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install duckdb dbt-core dbt-duckdb requests python-dotenv sqlfluff
+          pip install duckdb dbt-core dbt-duckdb requests python-dotenv
 
       - name: Lint SQL with SQLFluff
         run: |
+          pip install sqlfluff
           cd dbt
           sqlfluff lint models/ --dialect duckdb --ignore parsing || true
 
@@ -41,43 +42,69 @@ jobs:
           conn.execute('CREATE SCHEMA IF NOT EXISTS raw')
           conn.execute('CREATE SCHEMA IF NOT EXISTS staging')
           conn.execute('CREATE SCHEMA IF NOT EXISTS mart')
-          # Create minimal raw tables for dbt to compile against
-          conn.execute('''CREATE TABLE IF NOT EXISTS raw.live_matches (
-            match_id INTEGER, home_team_name VARCHAR, away_team_name VARCHAR,
-            home_score INTEGER, away_score INTEGER, status VARCHAR,
-            utc_date TIMESTAMP, source VARCHAR, ingested_at TIMESTAMP,
-            raw_json JSON, winner VARCHAR
-          )''')
-          conn.execute('''CREATE TABLE IF NOT EXISTS raw.live_standings (
-            team_name VARCHAR, position INTEGER, played_games INTEGER,
-            won INTEGER, draw INTEGER, lost INTEGER, points INTEGER,
-            goals_for INTEGER, goals_against INTEGER, goal_difference INTEGER,
-            form VARCHAR, source VARCHAR, ingested_at TIMESTAMP, raw_json JSON
-          )''')
+
           conn.execute('''CREATE TABLE IF NOT EXISTS raw.matches (
-            match_id INTEGER, home_team VARCHAR, away_team VARCHAR,
-            home_score INTEGER, away_score INTEGER, match_date DATE,
-            competition VARCHAR, season VARCHAR, match_week INTEGER,
-            ingested_at TIMESTAMP
+            match_id INTEGER, competition_id INTEGER, competition_name VARCHAR,
+            season_id INTEGER, season_name VARCHAR, match_date DATE, kick_off TIME,
+            home_team_id INTEGER, home_team_name VARCHAR, away_team_id INTEGER,
+            away_team_name VARCHAR, home_score INTEGER, away_score INTEGER,
+            match_status VARCHAR, matchday INTEGER, raw_json JSON, ingested_at TIMESTAMP
           )''')
+
           conn.execute('''CREATE TABLE IF NOT EXISTS raw.events (
-            event_id VARCHAR, match_id INTEGER, minute INTEGER,
-            type VARCHAR, team VARCHAR, player VARCHAR,
-            outcome VARCHAR, ingested_at TIMESTAMP
+            event_id VARCHAR, match_id INTEGER, index_num INTEGER, period INTEGER,
+            minute INTEGER, second INTEGER, event_type VARCHAR, team_id INTEGER,
+            team_name VARCHAR, player_id INTEGER, player_name VARCHAR,
+            position_name VARCHAR, location_x FLOAT, location_y FLOAT,
+            sub_type VARCHAR, outcome VARCHAR, raw_json JSON, ingested_at TIMESTAMP
           )''')
+
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.lineups (
+            match_id INTEGER, team_id INTEGER, team_name VARCHAR, player_id INTEGER,
+            player_name VARCHAR, jersey_number INTEGER, position_id INTEGER,
+            position_name VARCHAR, raw_json JSON, ingested_at TIMESTAMP
+          )''')
+
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.top_scorers_2324 (
+            rank INTEGER, player_id INTEGER, player_name VARCHAR, team_name VARCHAR,
+            goals INTEGER, assists INTEGER, goal_contributions INTEGER,
+            matches_played INTEGER, goals_per_game DOUBLE, assists_per_game DOUBLE,
+            ingested_at TIMESTAMP
+          )''')
+
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.live_standings (
+            source VARCHAR, competition VARCHAR, season VARCHAR, position INTEGER,
+            team_name VARCHAR, played INTEGER, won INTEGER, draw INTEGER, lost INTEGER,
+            goals_for INTEGER, goals_against INTEGER, goal_difference INTEGER,
+            points INTEGER, form VARCHAR, raw_json JSON, ingested_at TIMESTAMP
+          )''')
+
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.live_matches (
+            source VARCHAR, match_id VARCHAR, competition VARCHAR, season VARCHAR,
+            utc_date TIMESTAMP, status VARCHAR, minute INTEGER, home_team_name VARCHAR,
+            away_team_name VARCHAR, home_score INTEGER, away_score INTEGER,
+            winner VARCHAR, raw_json JSON, ingested_at TIMESTAMP
+          )''')
+
           conn.execute('''CREATE TABLE IF NOT EXISTS raw.standings (
-            team VARCHAR, position INTEGER, played INTEGER,
-            won INTEGER, drawn INTEGER, lost INTEGER, gf INTEGER,
-            ga INTEGER, gd INTEGER, points INTEGER, season VARCHAR,
-            ingested_at TIMESTAMP
+            team VARCHAR, position INTEGER, played INTEGER, won INTEGER,
+            drawn INTEGER, lost INTEGER, gf INTEGER, ga INTEGER, gd INTEGER,
+            points INTEGER, season VARCHAR, ingested_at TIMESTAMP
           )''')
-          conn.execute('''CREATE TABLE IF NOT EXISTS raw.top_scorers (
-            player VARCHAR, team VARCHAR, goals INTEGER, assists INTEGER,
-            penalty_goals INTEGER, matches_played INTEGER, season VARCHAR,
-            ingested_at TIMESTAMP
+
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.pipeline_runs (
+            run_id VARCHAR, pipeline_name VARCHAR, status VARCHAR, details VARCHAR,
+            rows_written INTEGER, created_at TIMESTAMP
           )''')
+
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.player_stats (
+            match_id INTEGER, player_id INTEGER, player_name VARCHAR, team_id INTEGER,
+            team_name VARCHAR, position_name VARCHAR, event_count BIGINT,
+            raw_json VARCHAR, ingested_at TIMESTAMP
+          )''')
+
           conn.close()
-          print('CI seed complete')
+          print('CI seed complete — 9 raw tables created')
           "
 
       - name: Run dbt build (models + tests)
