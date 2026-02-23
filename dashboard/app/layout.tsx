@@ -3,8 +3,8 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 
 export const metadata: Metadata = {
-  title: "EPL Analytics | 2023-24 Premier League",
-  description: "Premier League 2023-24 season analytics dashboard",
+  title: "EPL Analytics | 2025-26 Premier League",
+  description: "Premier League 2025-26 season analytics dashboard — live pipeline",
 };
 
 export default function RootLayout({
@@ -20,8 +20,8 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="text-center py-6 text-gray-500 text-sm border-t border-white/5 mt-12">
-          <p>⚽ EPL Analytics Dashboard · 2023-24 Season · Built with Next.js + DuckDB</p>
-          <p className="mt-1">Data: football-data.co.uk · StatsBomb Open Data</p>
+          <p>⚽ EPL Analytics Dashboard · 2025-26 Season · Built with Next.js + Airflow + DuckDB + dbt</p>
+          <p className="mt-1">Data: football-data.org (live) · StatsBomb Open Data (historical)</p>
         </footer>
       </body>
     </html>

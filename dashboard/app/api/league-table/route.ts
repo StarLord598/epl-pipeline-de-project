@@ -1,15 +1,32 @@
 import { NextResponse } from "next/server";
-import { getLeagueTable } from "@/lib/bigquery";
+import path from "path";
+import fs from "fs";
 
-export const dynamic = "force-dynamic";   // always re-fetch, never cache statically
-export const revalidate = 300;            // ISR: refresh every 5 minutes
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const data = await getLeagueTable();
-    return NextResponse.json(data, {
-      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
-    });
+    // Prefer live standings (current season)
+    const livePath = path.join(process.cwd(), "public", "data", "live_standings.json");
+    if (fs.existsSync(livePath)) {
+      const data = JSON.parse(fs.readFileSync(livePath, "utf-8"));
+      if (Array.isArray(data) && data.length > 0) {
+        return NextResponse.json(data, {
+          headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
+        });
+      }
+    }
+
+    // Fallback to historical league_table.json
+    const fallbackPath = path.join(process.cwd(), "public", "data", "league_table.json");
+    if (fs.existsSync(fallbackPath)) {
+      const data = JSON.parse(fs.readFileSync(fallbackPath, "utf-8"));
+      return NextResponse.json(data, {
+        headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
+      });
+    }
+
+    return NextResponse.json([], { status: 200 });
   } catch (error) {
     console.error("[/api/league-table]", error);
     return NextResponse.json({ error: "Failed to fetch league table" }, { status: 500 });

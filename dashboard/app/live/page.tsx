@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { TEAM_COLORS, TEAM_SHORT } from "@/lib/data";
+import { getTeamColor, getTeamShort } from "@/lib/data";
 
 interface LiveMatch {
   match_id: number;
@@ -84,15 +84,6 @@ function getStatusBadge(status: string, minute: number | null, utcDate: string) 
   }
 }
 
-function getTeamColor(name: string): string {
-  // Try exact match first, then partial
-  if (TEAM_COLORS[name]) return TEAM_COLORS[name].primary;
-  const key = Object.keys(TEAM_COLORS).find(
-    (k) => name.includes(k.split(" ")[0]) || k.includes(name.split(" ")[0])
-  );
-  return key ? TEAM_COLORS[key].primary : "#888";
-}
-
 function MatchCard({ match }: { match: LiveMatch }) {
   const isLive = ["IN_PLAY", "LIVE", "PAUSED", "HALFTIME"].includes(match.status);
   const isFinished = match.status === "FINISHED";
@@ -123,7 +114,7 @@ function MatchCard({ match }: { match: LiveMatch }) {
             {match.home_team}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            {TEAM_SHORT[match.home_team] || "HOME"}
+            {getTeamShort(match.home_team)}
           </p>
         </div>
 
@@ -153,7 +144,7 @@ function MatchCard({ match }: { match: LiveMatch }) {
             {match.away_team}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            {TEAM_SHORT[match.away_team] || "AWAY"}
+            {getTeamShort(match.away_team)}
           </p>
         </div>
       </div>

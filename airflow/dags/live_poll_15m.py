@@ -1,13 +1,20 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+
+default_args = {
+    "retries": 3,
+    "retry_delay": timedelta(seconds=30),
+}
 
 with DAG(
     dag_id="live_poll_15m",
     start_date=datetime(2026, 2, 20),
     schedule="*/15 * * * *",
     catchup=False,
+    max_active_runs=1,
     tags=["live", "epl", "portfolio"],
+    default_args=default_args,
 ) as dag:
     fetch_matches_live = BashOperator(
         task_id="fetch_matches_live",

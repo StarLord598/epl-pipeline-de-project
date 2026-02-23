@@ -1,4 +1,4 @@
-import { TEAM_SHORT, TEAM_COLORS } from "@/lib/data";
+import { TEAM_COLORS, getTeamColor, getTeamShort, stripFC } from "@/lib/data";
 
 interface TeamBadgeProps {
   teamName: string;
@@ -7,8 +7,10 @@ interface TeamBadgeProps {
 }
 
 export default function TeamBadge({ teamName, size = "md", showName = false }: TeamBadgeProps) {
-  const colors = TEAM_COLORS[teamName] || { primary: "#6b7280", secondary: "#374151", text: "#fff" };
-  const abbr = TEAM_SHORT[teamName] || teamName.slice(0, 3).toUpperCase();
+  const stripped = stripFC(teamName);
+  const colorObj = TEAM_COLORS[teamName] || TEAM_COLORS[stripped] || { primary: getTeamColor(teamName), secondary: "#374151", text: "#fff" };
+  const colors = colorObj;
+  const abbr = getTeamShort(teamName);
 
   const sizeClasses = {
     sm: "w-7 h-7 text-xs",

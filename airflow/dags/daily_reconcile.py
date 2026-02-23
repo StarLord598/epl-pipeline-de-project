@@ -34,12 +34,16 @@ from airflow.operators.bash import BashOperator
 def daily_reconcile():
     ingest_statsbomb = BashOperator(
         task_id="ingest_statsbomb",
-        bash_command="cd /opt/airflow && ./venv313/bin/python scripts/ingest_data.py ",
+        bash_command="cd /opt/airflow && python scripts/ingest_data.py ",
+        retries=2,
+        retry_delay=timedelta(seconds=30),
     )
 
     ingest_season = BashOperator(
         task_id="ingest_full_season",
-        bash_command="cd /opt/airflow && ./venv313/bin/python scripts/ingest_full_season.py ",
+        bash_command="cd /opt/airflow && python scripts/ingest_full_season.py ",
+        retries=2,
+        retry_delay=timedelta(seconds=30),
     )
 
     # dbt (optional). If you run DuckDB dbt locally, keep this as a no-op in airflow container.
@@ -56,11 +60,13 @@ def daily_reconcile():
     run_live = BashOperator(
         task_id="run_live_pipeline",
         bash_command="cd /opt/airflow && bash scripts/run_live_pipeline.sh ",
+        retries=2,
+        retry_delay=timedelta(seconds=30),
     )
 
     export_json = BashOperator(
         task_id="export_dashboard_json",
-        bash_command="cd /opt/airflow && ./venv313/bin/python scripts/export_to_json.py || true ",
+        bash_command="cd /opt/airflow && python scripts/export_to_json.py || true ",
     )
 
     ingest_statsbomb >> ingest_season >> dbt_run >> dbt_test >> run_live >> export_json

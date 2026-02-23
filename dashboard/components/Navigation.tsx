@@ -27,7 +27,7 @@ export default function Navigation() {
               Analytics
             </span>
             <span className="text-[#00ff85] text-xs font-semibold hidden sm:block">
-              2023-24
+              2025-26
             </span>
           </Link>
 

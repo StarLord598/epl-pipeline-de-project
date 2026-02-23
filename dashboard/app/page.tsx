@@ -1,27 +1,58 @@
 import Link from "next/link";
-import { getLeagueTable } from "@/lib/bigquery";
+import path from "path";
+import fs from "fs";
 import { getQualificationZone } from "@/lib/data";
 import FormBadges from "@/components/FormBadges";
 import TeamBadge from "@/components/TeamBadge";
 
-export const revalidate = 300; // ISR: re-fetch from BigQuery every 5 min
+export const revalidate = 300;
 
 const ZONE_LABELS: Record<string, { label: string; color: string }> = {
-  "champions_league":  { label: "Champions League", color: "#00c8ff" },
-  "europa_league":     { label: "Europa League",    color: "#f97316" },
-  "conference_league": { label: "Conference League",color: "#84cc16" },
+  "champions-league":  { label: "Champions League", color: "#00c8ff" },
+  "europa-league":     { label: "Europa League",    color: "#f97316" },
+  "conference-league": { label: "Conference League", color: "#84cc16" },
   "relegation":        { label: "Relegation",       color: "#ef4444" },
 };
 
-export default async function LeagueTablePage() {
-  // ← Direct BigQuery call (with JSON fallback built-in)
-  const table = await getLeagueTable() as Array<Record<string, unknown>>;
+function stripFC(name: string): string {
+  return name.replace(/ FC$/, "").replace(/^AFC /, "").trim();
+}
 
-  // Derive extra stats from the live data
+async function getTable(): Promise<Array<Record<string, unknown>>> {
+  // Prefer live standings (current season from football-data.org)
+  const livePath = path.join(process.cwd(), "public", "data", "live_standings.json");
+  if (fs.existsSync(livePath)) {
+    const data = JSON.parse(fs.readFileSync(livePath, "utf-8"));
+    if (Array.isArray(data) && data.length > 0) {
+      // Enrich with derived stats
+      return data.map((t: Record<string, unknown>) => ({
+        ...t,
+        team_id: t.team_id ?? t.position,
+        goal_difference: (t.goal_difference as number) ?? ((t.goals_for as number) - (t.goals_against as number)),
+        win_rate: t.win_rate ?? ((t.played as number) > 0 ? Math.round(((t.won as number) / (t.played as number)) * 1000) / 10 : 0),
+        points_pct: t.points_pct ?? ((t.played as number) > 0 ? Math.round(((t.points as number) / ((t.played as number) * 3)) * 1000) / 10 : 0),
+        goals_per_game: t.goals_per_game ?? ((t.played as number) > 0 ? Math.round(((t.goals_for as number) / (t.played as number)) * 100) / 100 : 0),
+        goals_conceded_per_game: t.goals_conceded_per_game ?? ((t.played as number) > 0 ? Math.round(((t.goals_against as number) / (t.played as number)) * 100) / 100 : 0),
+      }));
+    }
+  }
+  // Fallback to league_table.json (batch/historical data)
+  const fallbackPath = path.join(process.cwd(), "public", "data", "league_table.json");
+  if (fs.existsSync(fallbackPath)) {
+    return JSON.parse(fs.readFileSync(fallbackPath, "utf-8"));
+  }
+  return [];
+}
+
+export default async function LeagueTablePage() {
+  const table = await getTable();
+
   const topGoalTeam  = [...table].sort((a, b) => (b.goals_for as number) - (a.goals_for as number))[0];
   const bestDefence  = [...table].sort((a, b) => (a.goals_against as number) - (b.goals_against as number))[0];
   const mostWins     = [...table].sort((a, b) => (b.won as number) - (a.won as number))[0];
-  const relegated    = table.filter(t => (t.position as number) >= 18).map(t => t.team_name as string);
+  const relegated    = table.filter(t => (t.position as number) >= 18).map(t => stripFC(t.team_name as string));
+  const maxPlayed    = Math.max(...table.map(t => t.played as number));
+  const seasonLabel  = maxPlayed >= 38 ? "Final Standings" : `Matchday ${maxPlayed}`;
 
   return (
     <div>
@@ -31,7 +62,7 @@ export default async function LeagueTablePage() {
           <span className="text-3xl">🏆</span>
           <div>
             <h1 className="text-2xl font-bold text-white">Premier League Table</h1>
-            <p className="text-gray-400 text-sm">2023-24 Season · Final Standings · Live from BigQuery</p>
+            <p className="text-gray-400 text-sm">2025-26 Season · {seasonLabel} · Live from Pipeline</p>
           </div>
         </div>
       </div>
@@ -80,10 +111,11 @@ export default async function LeagueTablePage() {
                 const zone = (team.qualification_zone as string) || getQualificationZone(pos) || "";
                 const zoneClass = zone ? `zone-${zone.replace(/_/g, "-")}` : "";
                 const isChampion = pos === 1;
+                const displayName = stripFC(team.team_name as string);
 
                 return (
                   <tr
-                    key={team.team_id as number}
+                    key={(team.team_id as number) ?? pos}
                     className={`border-b border-white/5 card-hover ${zoneClass} ${isChampion ? "bg-yellow-500/5" : ""}`}
                   >
                     <td className="py-3 px-4">
@@ -92,13 +124,10 @@ export default async function LeagueTablePage() {
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <Link
-                        href={`/teams/${team.team_id}`}
-                        className="flex items-center gap-2 hover:text-[#00ff85] transition-colors"
-                      >
-                        <TeamBadge teamName={team.team_name as string} size="sm" />
-                        <span className="font-medium">{team.team_name as string}</span>
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <TeamBadge teamName={displayName} size="sm" />
+                        <span className="font-medium text-white">{displayName}</span>
+                      </div>
                     </td>
                     <td className="text-center py-3 px-2 text-gray-300">{team.played as number}</td>
                     <td className="text-center py-3 px-2 text-green-400">{team.won as number}</td>
@@ -132,21 +161,21 @@ export default async function LeagueTablePage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <StatCard
           label="Most Goals"
-          value={topGoalTeam?.team_name as string ?? "—"}
+          value={stripFC(topGoalTeam?.team_name as string ?? "—")}
           sub={`${topGoalTeam?.goals_for} scored`}
           icon="⚡"
           color="#6CABDD"
         />
         <StatCard
           label="Best Defence"
-          value={bestDefence?.team_name as string ?? "—"}
+          value={stripFC(bestDefence?.team_name as string ?? "—")}
           sub={`${bestDefence?.goals_against} conceded`}
           icon="🛡️"
           color="#EF0107"
         />
         <StatCard
           label="Most Wins"
-          value={mostWins?.team_name as string ?? "—"}
+          value={stripFC(mostWins?.team_name as string ?? "—")}
           sub={`${mostWins?.won} wins`}
           icon="🏆"
           color="#6CABDD"

@@ -28,12 +28,25 @@ DASH_DATA.mkdir(parents=True, exist_ok=True)
 API_KEY = os.getenv("FOOTBALL_DATA_API_KEY", "").strip()
 
 
+import math
+
 def json_serial(obj):
     if hasattr(obj, "isoformat"):
         return obj.isoformat()
     if hasattr(obj, "item"):
         return obj.item()
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
     return str(obj)
+
+
+def sanitize_records(records):
+    """Replace NaN/Inf with None in dicts for JSON serialization."""
+    for rec in records:
+        for k, v in rec.items():
+            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                rec[k] = None
+    return records
 
 
 def export_from_duckdb():
@@ -75,7 +88,7 @@ def export_from_duckdb():
         if len(matches_df) > 0:
             records = matches_df.to_dict(orient="records")
             out = DASH_DATA / "live_matches.json"
-            out.write_text(json.dumps(records, indent=2, default=json_serial))
+            out.write_text(json.dumps(sanitize_records(records), indent=2, default=json_serial))
             log.info(f"  live_matches.json ({len(records)} matches)")
         else:
             log.info("  No PL live matches in DuckDB, will try API fallback")
@@ -112,7 +125,7 @@ def export_from_duckdb():
             standings_df = standings_df.sort_values("position")
             records = standings_df.to_dict(orient="records")
             out = DASH_DATA / "live_standings.json"
-            out.write_text(json.dumps(records, indent=2, default=json_serial))
+            out.write_text(json.dumps(sanitize_records(records), indent=2, default=json_serial))
             log.info(f"  live_standings.json ({len(records)} teams)")
         else:
             log.info("  No standings in DuckDB")
@@ -158,7 +171,7 @@ def export_from_api():
             })
 
         out = DASH_DATA / "live_matches.json"
-        out.write_text(json.dumps(matches, indent=2, default=json_serial))
+        out.write_text(json.dumps(sanitize_records(matches), indent=2, default=json_serial))
         log.info(f"  live_matches.json ({len(matches)} matches from API)")
     except Exception as e:
         log.warning(f"  API matches failed: {e}")
@@ -189,7 +202,7 @@ def export_from_api():
                     })
 
         out = DASH_DATA / "live_standings.json"
-        out.write_text(json.dumps(standings, indent=2, default=json_serial))
+        out.write_text(json.dumps(sanitize_records(standings), indent=2, default=json_serial))
         log.info(f"  live_standings.json ({len(standings)} teams from API)")
     except Exception as e:
         log.warning(f"  API standings failed: {e}")

@@ -92,10 +92,11 @@ export const TEAM_COLORS: Record<string, { primary: string; secondary: string; t
   "Crystal Palace":           { primary: "#1B458F", secondary: "#C4122E", text: "#fff" },
   "Nottingham Forest":        { primary: "#DD0000", secondary: "#FFFFFF", text: "#fff" },
   "Everton":                  { primary: "#003399", secondary: "#FFFFFF", text: "#fff" },
-  "Luton Town":               { primary: "#F78F1E", secondary: "#003366", text: "#fff" },
   "Burnley":                  { primary: "#6C1D45", secondary: "#99D6EA", text: "#fff" },
-  "Sheffield United":         { primary: "#EE2737", secondary: "#000000", text: "#fff" },
   "Bournemouth":              { primary: "#DA291C", secondary: "#000000", text: "#fff" },
+  "AFC Bournemouth":          { primary: "#DA291C", secondary: "#000000", text: "#fff" },
+  "Sunderland":               { primary: "#EB172B", secondary: "#000000", text: "#fff" },
+  "Leeds United":             { primary: "#FFCD00", secondary: "#1D428A", text: "#000" },
 };
 
 // Team abbreviations for compact display
@@ -116,11 +117,36 @@ export const TEAM_SHORT: Record<string, string> = {
   "Crystal Palace":           "CRY",
   "Nottingham Forest":        "NFO",
   "Everton":                  "EVE",
-  "Luton Town":               "LUT",
   "Burnley":                  "BUR",
-  "Sheffield United":         "SHU",
   "Bournemouth":              "BOU",
+  "AFC Bournemouth":          "BOU",
+  "Sunderland":               "SUN",
+  "Leeds United":             "LEE",
 };
+
+/** Strip "FC", "AFC" suffixes for display and lookup */
+export function stripFC(name: string): string {
+  return name.replace(/ FC$/, "").replace(/^AFC /, "").trim();
+}
+
+/** Get team color, trying exact match then stripped name */
+export function getTeamColor(name: string): string {
+  if (TEAM_COLORS[name]) return TEAM_COLORS[name].primary;
+  const stripped = stripFC(name);
+  if (TEAM_COLORS[stripped]) return TEAM_COLORS[stripped].primary;
+  const key = Object.keys(TEAM_COLORS).find(
+    (k) => name.includes(k.split(" ")[0]) || k.includes(name.split(" ")[0])
+  );
+  return key ? TEAM_COLORS[key].primary : "#888";
+}
+
+/** Get team abbreviation, trying exact match then stripped name */
+export function getTeamShort(name: string): string {
+  if (TEAM_SHORT[name]) return TEAM_SHORT[name];
+  const stripped = stripFC(name);
+  if (TEAM_SHORT[stripped]) return TEAM_SHORT[stripped];
+  return name.slice(0, 3).toUpperCase();
+}
 
 // Champions League / Europa spots
 export const getQualificationZone = (position: number) => {

@@ -217,6 +217,18 @@
   },
   {
     "rank": 19,
+    "player_id": 50025,
+    "player_name": "Joao Pedro",
+    "team_name": "Brighton & Hove Albion",
+    "goals": 11,
+    "assists": 5,
+    "goal_contributions": 16,
+    "matches_played": 35,
+    "goals_per_game": 0.31,
+    "assists_per_game": 0.14
+  },
+  {
+    "rank": 20,
     "player_id": 50012,
     "player_name": "Gabriel Martinelli",
     "team_name": "Arsenal",
@@ -228,7 +240,7 @@
     "assists_per_game": 0.17
   },
   {
-    "rank": 20,
+    "rank": 21,
     "player_id": 50029,
     "player_name": "Yoane Wissa",
     "team_name": "Brentford",
@@ -238,18 +250,6 @@
     "matches_played": 33,
     "goals_per_game": 0.33,
     "assists_per_game": 0.15
-  },
-  {
-    "rank": 21,
-    "player_id": 50025,
-    "player_name": "Joao Pedro",
-    "team_name": "Brighton & Hove Albion",
-    "goals": 11,
-    "assists": 5,
-    "goal_contributions": 16,
-    "matches_played": 35,
-    "goals_per_game": 0.31,
-    "assists_per_game": 0.14
   },
   {
     "rank": 22,

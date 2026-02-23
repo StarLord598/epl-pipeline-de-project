@@ -65,7 +65,7 @@ export default function ResultsPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Match Results</h1>
             <p className="text-gray-400 text-sm">
-              2023-24 Premier League · {matches.length} matches · Live from BigQuery
+              Premier League · {matches.length} matches · Live from Pipeline
             </p>
           </div>
         </div>

@@ -38,10 +38,12 @@ export default async function TeamPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const colors = TEAM_COLORS[team.team_name] || { primary: "#6b7280", secondary: "#374151", text: "#fff" };
+  const stripped = team.team_name.replace(/ FC$/, "").replace(/^AFC /, "").trim();
+  const colors = TEAM_COLORS[team.team_name] || TEAM_COLORS[stripped] || { primary: "#6b7280", secondary: "#374151", text: "#fff" };
   const s = team.standings;
   const zone = s ? getQualificationZone(s.position) : null;
-  const recentMatches = team.matches.slice(0, 10);
+  const recentMatches = (team.matches || []).slice(0, 10);
+  const scorers = team.scorers || [];
 
   return (
     <div>
@@ -81,7 +83,7 @@ export default async function TeamPage({ params }: { params: { id: string } }) {
             </div>
           </div>
           <div className="ml-auto text-right">
-            <FormBadges form={team.form} />
+            <FormBadges form={team.form ?? undefined} />
             <p className="text-gray-500 text-xs mt-1">Last 5</p>
           </div>
         </div>
@@ -153,13 +155,13 @@ export default async function TeamPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Top scorers */}
-        {team.scorers.length > 0 && (
+        {scorers.length > 0 && (
           <div className="glass rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-white/10">
               <h2 className="text-sm text-gray-400 uppercase tracking-wider">Top Scorers</h2>
             </div>
             <div className="divide-y divide-white/5">
-              {team.scorers.map((scorer) => (
+              {scorers.map((scorer) => (
                 <div key={scorer.player_id} className="flex items-center justify-between px-4 py-3">
                   <div>
                     <p className="font-medium text-white text-sm">{scorer.player_name}</p>

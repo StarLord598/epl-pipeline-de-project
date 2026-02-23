@@ -12,9 +12,29 @@ export default function StatsPage() {
   const [selected, setSelected] = useState<string[]>(["Manchester City", "Arsenal", "Liverpool"]);
 
   useEffect(() => {
-    fetch("/data/league_table.json")
-      .then((r) => r.json())
-      .then(setTeams);
+    // Prefer live standings, fall back to league_table
+    fetch("/data/live_standings.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("no live data");
+        return r.json();
+      })
+      .then((data: TeamStanding[]) => {
+        if (!Array.isArray(data) || data.length === 0) throw new Error("empty");
+        // Enrich with derived fields if missing
+        setTeams(data.map((t) => ({
+          ...t,
+          team_id: t.team_id ?? t.position,
+          team_name: (t.team_name || "").replace(/ FC$/, "").replace(/^AFC /, ""),
+          goal_difference: t.goal_difference ?? (t.goals_for - t.goals_against),
+          win_rate: t.win_rate ?? (t.played > 0 ? Math.round((t.won / t.played) * 1000) / 10 : 0),
+          points_pct: t.points_pct ?? (t.played > 0 ? Math.round((t.points / (t.played * 3)) * 1000) / 10 : 0),
+          goals_per_game: t.goals_per_game ?? (t.played > 0 ? Math.round((t.goals_for / t.played) * 100) / 100 : 0),
+          goals_conceded_per_game: t.goals_conceded_per_game ?? (t.played > 0 ? Math.round((t.goals_against / t.played) * 100) / 100 : 0),
+        })));
+      })
+      .catch(() => {
+        fetch("/data/league_table.json").then((r) => r.json()).then(setTeams);
+      });
   }, []);
 
   const toggleTeam = (name: string) => {
@@ -63,7 +83,7 @@ export default function StatsPage() {
           <span className="text-3xl">📊</span>
           <div>
             <h1 className="text-2xl font-bold text-white">Season Statistics</h1>
-            <p className="text-gray-400 text-sm">2023-24 · Team Performance Analysis</p>
+            <p className="text-gray-400 text-sm">2025-26 · Team Performance Analysis</p>
           </div>
         </div>
       </div>
@@ -165,7 +185,7 @@ export default function StatsPage() {
           { icon: "⚽", label: "Total Goals", value: teams.reduce((s, t) => s + t.goals_for, 0) },
           { icon: "🎮", label: "Total Matches", value: teams.reduce((s, t) => s + t.played, 0) / 2 },
           { icon: "📈", label: "Avg Goals/Game", value: (teams.reduce((s, t) => s + t.goals_for, 0) / (teams.reduce((s, t) => s + t.played, 0) / 2)).toFixed(2) },
-          { icon: "🏆", label: "Champions", value: "Manchester City" },
+          { icon: "🏆", label: "Leader", value: teams[0]?.team_name ?? "—" },
         ].map((stat) => (
           <div key={stat.label} className="glass rounded-xl p-4 text-center">
             <div className="text-2xl mb-2">{stat.icon}</div>

@@ -62,7 +62,7 @@ export default function ScorersPage() {
           <span className="text-3xl">🥇</span>
           <div>
             <h1 className="text-2xl font-bold text-white">Golden Boot Race</h1>
-            <p className="text-gray-400 text-sm">2023-24 Premier League · Live from BigQuery</p>
+            <p className="text-gray-400 text-sm">Premier League · Live from Pipeline</p>
           </div>
         </div>
       </div>
