@@ -14,6 +14,9 @@ statsbombpy==1.13.1
 dbt-core>=1.8,<2.0
 dbt-duckdb>=1.8,<2.0
 
+# Testing
+pytest>=8.0,<9.0
+
 # Code quality (optional, used by CI)
 # ruff
 # sqlfluff

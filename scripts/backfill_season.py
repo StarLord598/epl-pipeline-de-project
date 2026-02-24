@@ -8,14 +8,16 @@ Safe to run multiple times — deduplicates on match_id in silver/gold layers.
 from __future__ import annotations
 
 import json
-import os
-import sys
 from datetime import UTC, datetime
 from typing import Any
 
 import requests
 
+from env_check import require_football_api_key
 from live_common import ensure_live_tables, get_conn, load_env_file, log_run
+from log_config import setup_logger
+
+log = setup_logger("backfill_season")
 
 
 def fetch_all_matches(api_key: str) -> list[dict[str, Any]]:
@@ -55,16 +57,12 @@ def fetch_all_matches(api_key: str) -> list[dict[str, Any]]:
 
 def main() -> None:
     load_env_file()
-    api_key = os.getenv("FOOTBALL_DATA_API_KEY", "").strip()
-
-    if not api_key or api_key == "your-key-from-football-data.org":
-        print("[BACKFILL] ERROR: FOOTBALL_DATA_API_KEY required for backfill")
-        sys.exit(1)
+    api_key = require_football_api_key()
 
     conn = get_conn()
     ensure_live_tables(conn)
 
-    print("[BACKFILL] Fetching full 2025-26 season from football-data.org...")
+    log.info("Fetching full 2025-26 season from football-data.org...")
     rows = fetch_all_matches(api_key)
 
     # Check existing match IDs to avoid duplicates in raw
@@ -103,8 +101,8 @@ def main() -> None:
     scheduled = len([r for r in rows if r["status"] in ("TIMED", "SCHEDULED")])
 
     log_run(conn, "backfill_season", "success", f"total={len(rows)} inserted={inserted} skipped={skipped}", inserted)
-    print(f"[BACKFILL] Done: {len(rows)} total matches ({finished} finished, {scheduled} scheduled)")
-    print(f"[BACKFILL] Inserted: {inserted}, Skipped (already exists): {skipped}")
+    log.info("Done: %d total matches (%d finished, %d scheduled)", len(rows), finished, scheduled)
+    log.info("Inserted: %d, Skipped (already exists): %d", inserted, skipped)
     conn.close()
 
 

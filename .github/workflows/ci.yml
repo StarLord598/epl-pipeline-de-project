@@ -21,18 +21,21 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install duckdb dbt-core dbt-duckdb requests python-dotenv
+          pip install duckdb dbt-core dbt-duckdb requests python-dotenv pytest
 
       - name: Lint SQL with SQLFluff
         run: |
           pip install sqlfluff
           cd dbt
-          sqlfluff lint models/ --dialect duckdb --ignore parsing || true
+          sqlfluff lint models/ --dialect duckdb --ignore parsing
 
       - name: Lint Python
         run: |
           pip install ruff
           ruff check scripts/ --ignore E501
+
+      - name: Run pytest
+        run: PYTHONPATH=scripts pytest tests/ -v
 
       - name: Seed DuckDB (create schema)
         run: |
