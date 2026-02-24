@@ -265,6 +265,33 @@ sources:
           - name: ingested_at
             description: "Timestamp when row was loaded"
 
+      - name: stadium_weather
+        description: "Raw weather readings for EPL stadiums from Open-Meteo API. Append-only."
+        freshness: null
+        columns:
+          - name: team_name
+            description: "Team name matching dim_teams"
+          - name: stadium_name
+            description: "Stadium venue name"
+          - name: latitude
+            description: "Stadium latitude"
+          - name: longitude
+            description: "Stadium longitude"
+          - name: temperature_c
+            description: "Temperature in Celsius"
+          - name: humidity_pct
+            description: "Relative humidity %"
+          - name: wind_speed_kmh
+            description: "Wind speed km/h"
+          - name: precipitation_mm
+            description: "Precipitation mm"
+          - name: weather_code
+            description: "WMO weather code"
+          - name: weather_description
+            description: "Human-readable weather"
+          - name: fetched_at
+            description: "When weather was fetched"
+
 models:
   - name: stg_matches
     description: >
@@ -444,3 +471,27 @@ models:
         description: "Approximate matchday extracted from raw_json"
       - name: ingested_at
         description: "Timestamp of the latest ingest used"
+
+  - name: stg_stadium_weather
+    description: >
+      Silver layer: latest weather per stadium. Deduplicates by team_name, keeps most recent.
+    columns:
+      - name: team_name
+        description: "Team name"
+        tests: [unique, not_null]
+      - name: stadium_name
+        description: "Stadium venue name"
+      - name: temperature_c
+        description: "Temperature in Celsius"
+      - name: humidity_pct
+        description: "Relative humidity %"
+      - name: wind_speed_kmh
+        description: "Wind speed km/h"
+      - name: precipitation_mm
+        description: "Precipitation mm"
+      - name: weather_code
+        description: "WMO weather code"
+      - name: weather_description
+        description: "Human-readable weather"
+      - name: fetched_at
+        description: "When weather was fetched"

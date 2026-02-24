@@ -11,6 +11,8 @@ const navItems = [
   { href: "/results",    label: "Results",  icon: "⚽" },
   { href: "/scorers",    label: "Scorers",  icon: "🎯" },
   { href: "/stats",      label: "Stats",    icon: "📊" },
+  { href: "/stream",    label: "Stream",   icon: "📡" },
+  { href: "/weather",   label: "Weather",  icon: "🌤️" },
   { href: "/quality",   label: "Quality",  icon: "🛡️" },
   { href: "/lineage",   label: "Lineage",  icon: "🔗" },
 ];

@@ -103,8 +103,15 @@ jobs:
             raw_json VARCHAR, ingested_at TIMESTAMP
           )''')
 
+          conn.execute('''CREATE TABLE IF NOT EXISTS raw.stadium_weather (
+            team_name VARCHAR, stadium_name VARCHAR, latitude DOUBLE, longitude DOUBLE,
+            temperature_c DOUBLE, humidity_pct DOUBLE, wind_speed_kmh DOUBLE,
+            precipitation_mm DOUBLE, weather_code INTEGER, weather_description VARCHAR,
+            fetched_at TIMESTAMP
+          )''')
+
           conn.close()
-          print('CI seed complete — 9 raw tables created')
+          print('CI seed complete — 10 raw tables created')
           "
 
       - name: Run dbt build (models + tests)

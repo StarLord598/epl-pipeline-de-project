@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DataSourceBadge from "@/components/DataSourceBadge";
 
 interface FormRow {
   team_name: string;
@@ -92,6 +93,11 @@ export default function FormPage() {
             </p>
           </div>
         </div>
+        <DataSourceBadge
+          pattern="Rolling Window"
+          source="Gold: mart_rolling_form + mart_scd2_standings"
+          explanation="Two patterns: (1) Rolling Window — AVG(points) OVER (ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) for 5-game PPG, classifying HOT/STEADY/COOLING/COLD. (2) SCD Type 2 — tracks every position change with valid_from/valid_to for point-in-time queries."
+        />
         <div className="flex gap-2">
           <button
             onClick={() => setView("momentum")}

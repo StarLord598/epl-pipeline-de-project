@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DataSourceBadge from "@/components/DataSourceBadge";
 
 interface QualityData {
   generated_at: string;
@@ -87,6 +88,11 @@ export default function QualityPage() {
             Pipeline health · Test coverage · Data freshness
           </p>
         </div>
+        <DataSourceBadge
+          pattern="Data Observability"
+          source="37 dbt tests + schema contracts + freshness SLAs"
+          explanation="Monitors pipeline health: dbt tests (unique, not_null, accepted_values), source freshness SLAs (1h warn / 4h error on live tables), schema contracts (pre-ingestion validation via contracts.py), and table inventory tracking. Catches data quality issues before they reach the dashboard."
+        />
       </div>
 
       {/* KPI Cards */}

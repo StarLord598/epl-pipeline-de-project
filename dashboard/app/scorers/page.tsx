@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DataSourceBadge from "@/components/DataSourceBadge";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell,
@@ -65,6 +66,11 @@ export default function ScorersPage() {
             <p className="text-gray-400 text-sm">Premier League · Live from Pipeline</p>
           </div>
         </div>
+        <DataSourceBadge
+          pattern="Star Schema"
+          source="Gold: mart_top_scorers → stg_top_scorers → raw.top_scorers"
+          explanation="Kimball star schema — mart_top_scorers is a fact table with player metrics (goals, assists, per-game rates). Joins with dim_teams for team context. Enables slice-and-dice analysis by team, position, and contribution type."
+        />
       </div>
 
       {/* Podium */}

@@ -241,3 +241,47 @@ Returns full match results.
 ### `GET /api/scorers`
 
 Returns top scorers with goals, assists, and per-game metrics.
+
+---
+
+## Stadium Weather
+
+### `GET /api/weather`
+
+Returns current weather conditions at all 20 EPL stadiums.
+
+**Response fields:** `team_name`, `stadium_name`, `latitude`, `longitude`, `temperature_c`, `humidity_pct`, `wind_speed_kmh`, `precipitation_mm`, `weather_code`, `weather_description`, `pitch_condition`, `temperature_class`, `team_tier`, `current_position`, `fetched_at`
+
+**Data source:** Open-Meteo API (free, no key required). Weather codes follow WMO standard.
+
+---
+
+## Streaming Match Replay
+
+### `GET /api/stream` (Server-Sent Events)
+
+Streams historical match events in real-time via SSE. Connect with `EventSource` — events are pushed with real match timing, adjustable by speed multiplier.
+
+**Query params:**
+- `match_id` (required) — Match ID from the stream events index
+- `speed` (optional, default 10) — Playback speed multiplier (1-100). 1x = real-time, 50x = ~2 min for a full match
+
+**SSE event types:**
+- `meta` — Initial payload with `total_events` count
+- `event` — Match event with `event_type`, `team_name`, `player_name`, `minute`, `second`, `location_x/y`, `outcome`
+- `end` — Stream complete
+
+**Example:**
+```javascript
+const es = new EventSource("/api/stream?match_id=3749358&speed=25");
+es.onmessage = (e) => {
+  const data = JSON.parse(e.data);
+  if (data.type === "event") {
+    console.log(`${data.minute}' ${data.event_type} — ${data.player_name}`);
+  }
+};
+```
+
+**Dashboard features:** Live scoreboard (goal detection), real-time possession bar (ball-touch events), event feed, team comparison stats, events/sec throughput meter.
+
+**Architecture pattern:** Producer (Next.js SSE endpoint) → Transport (EventSource/HTTP) → Consumer (React state). Production equivalent: Kafka producer → topic → Flink/Spark consumer → sink.

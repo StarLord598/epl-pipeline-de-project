@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getTeamColor, getTeamShort } from "@/lib/data";
+import DataSourceBadge from "@/components/DataSourceBadge";
 
 interface LiveMatch {
   match_id: number;
@@ -339,6 +340,11 @@ export default function LivePage() {
               Premier League · {matches.length} matches ·{" "}
               {hasLive ? "Matches in progress" : "Next fixtures"}
             </p>
+            <DataSourceBadge
+              pattern="Real-Time Ingestion"
+              source="Gold: mart_live_matches → stg_live_matches → raw.live_matches"
+              explanation="CDC-like pattern — football-data.org API polled every 15 min on matchdays via Airflow. Each poll appends to Bronze (append-only). Silver deduplicates via ROW_NUMBER() PARTITION BY match_id. ShortCircuitOperator skips non-matchdays to conserve API quota."
+            />
           </div>
 
           {lastUpdated && (

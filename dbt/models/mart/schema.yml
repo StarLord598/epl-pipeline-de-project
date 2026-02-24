@@ -412,3 +412,63 @@ models:
         description: "OK, STALE, or CRITICAL based on freshness thresholds"
       - name: computed_at
         description: "Timestamp when this monitoring row was computed"
+
+  - name: mart_scd1_matches
+    description: >
+      SCD Type 1 — latest state per match with correction tracking.
+      Tracks first_seen_at, last_updated_at, update_count, and is_correction flag.
+    columns:
+      - name: match_id
+        description: "Unique match identifier"
+        tests: [unique, not_null]
+      - name: utc_date
+        description: "Scheduled kickoff UTC"
+      - name: status
+        description: "Current match status"
+      - name: home_team
+        description: "Home team name"
+      - name: away_team
+        description: "Away team name"
+      - name: home_score
+        description: "Home goals"
+      - name: away_score
+        description: "Away goals"
+      - name: first_seen_at
+        description: "When this match was first ingested"
+        tests: [not_null]
+      - name: last_updated_at
+        description: "When this match was last updated"
+        tests: [not_null]
+      - name: update_count
+        description: "Number of times this match record was ingested"
+      - name: is_correction
+        description: "True if match data was updated after initial insert"
+
+  - name: mart_stadium_weather
+    description: >
+      Stadium weather enriched with team dimension data. Includes pitch condition
+      classification and temperature comfort levels.
+    columns:
+      - name: team_name
+        description: "Team name"
+        tests: [unique, not_null]
+      - name: stadium_name
+        description: "Stadium venue"
+      - name: temperature_c
+        description: "Temperature in Celsius"
+      - name: humidity_pct
+        description: "Relative humidity %"
+      - name: wind_speed_kmh
+        description: "Wind speed km/h"
+      - name: precipitation_mm
+        description: "Precipitation mm"
+      - name: weather_description
+        description: "Human-readable weather"
+      - name: pitch_condition
+        description: "Derived: Excellent/Good/Moderate/Poor/Dangerous"
+      - name: temperature_class
+        description: "Derived: Freezing/Cold/Cool/Comfortable/Warm/Hot"
+      - name: team_tier
+        description: "From dim_teams: Title Contender, European, etc."
+      - name: fetched_at
+        description: "When weather was fetched"
