@@ -9,20 +9,38 @@ capitalisation_policy = lower
 [sqlfluff:rules:capitalisation.identifiers]
 capitalisation_policy = lower
 
-# Disable opinionated structural rules that conflict with readability
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = lower
+
+# Disable rules that conflict with dbt Jinja context or are opinionated
 [sqlfluff:rules:structure.column_order]
 enabled = False
 
+[sqlfluff:rules:structure.else_null]
+enabled = False
+
+[sqlfluff:rules:structure.unused_cte]
+enabled = False
+
 [sqlfluff:rules:ambiguous.order_by]
+enabled = False
+
+[sqlfluff:rules:ambiguous.column_references]
 enabled = False
 
 [sqlfluff:rules:structure.simple_case]
 enabled = False
 
 [sqlfluff:rules:aliasing.table]
-force_enable = False
+enabled = False
 
 [sqlfluff:rules:references.consistent]
+enabled = False
+
+[sqlfluff:rules:references.qualification]
+enabled = False
+
+[sqlfluff:rules:references.keywords]
 enabled = False
 
 [sqlfluff:rules:convention.casting_style]
