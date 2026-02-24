@@ -361,25 +361,22 @@ epl-pipeline/
 ## 🗺️ Roadmap
 
 - [x] Medallion architecture (Bronze → Silver → Gold)
-- [x] 5 Airflow DAGs with matchday-aware scheduling
-- [x] 15 dbt models with 29 tests
+- [x] 6 Airflow DAGs with matchday-aware scheduling
+- [x] 18 dbt models with 37 tests
 - [x] Full 2025-26 season backfill (380 matches)
 - [x] SCD Type 2 position tracking
 - [x] Rolling form + momentum classification
 - [x] Kimball dimensions (teams, matchdays)
 - [x] Schema contract validation
-- [x] 9-page Next.js dashboard
-- [x] 8 REST API endpoints
+- [x] 11-page Next.js dashboard
+- [x] 10 REST API endpoints (including SSE streaming)
+- [x] SSE match replay — real-time event streaming (producer → consumer pattern)
+- [x] Stadium weather pipeline (Open-Meteo → 20 EPL venues)
 - [x] Data quality dashboard
 - [x] Data lineage visualization
 - [x] CI/CD with GitHub Actions
 - [x] One-command setup (Makefile)
 - [x] 150+ columns fully documented
-- [ ] Streaming simulation (WebSocket live score feed)
-- [ ] Player profiles with xG and heatmaps
-- [ ] Multi-season support (2024-25 + 2025-26)
-- [ ] Alerting on quality failures (Slack/email)
-- [ ] dbt docs hosted on GitHub Pages
 
 ## 📝 License
 
