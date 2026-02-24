@@ -1,40 +1,18 @@
--- Gold: SCD Type 2 — League position history
--- Tracks when each team's position changed across matchdays
--- Enables: "Arsenal moved to #1 on GW8 and has held it since"
+-- Gold: SCD Type 2 — League position history (pure implementation)
+-- Only creates a new version when a team's position CHANGES
+-- Consecutive matchdays at the same position are collapsed into one row
+-- Enables: "Arsenal held 1st from GW8 to GW15, then dropped to 2nd on GW16"
 
-with matchday_standings as (
-    -- Reconstruct standings at each matchday from match results
-    select
-        cast(json_extract_string(lm.raw_json, '$.matchday') as integer)
-            as matchday,
-        cast(max(lm.utc_date) as date) as matchday_date,
-        regexp_replace(
-            regexp_replace(lm.home_team_name, ' FC$', ''), '^AFC ', ''
-        ) as team_name,
-        -- We need to compute standings from results up to this matchday
-        1 as placeholder
-    from raw.live_matches as lm
-    where
-        lm.source = 'football-data.org'
-        and lm.status = 'FINISHED'
-    group by 1, 3
-),
-
--- Get all finished match results with matchday
-match_results as (
+with match_results as (
+    -- Deduplicate to one record per match (latest ingestion wins)
     select distinct on (match_id)
         match_id,
-        cast(json_extract_string(raw_json, '$.matchday') as integer)
-            as matchday,
+        cast(json_extract_string(raw_json, '$.matchday') as integer) as matchday,
         home_score,
         away_score,
         cast(utc_date as date) as match_date,
-        regexp_replace(
-            regexp_replace(home_team_name, ' FC$', ''), '^AFC ', ''
-        ) as home_team,
-        regexp_replace(
-            regexp_replace(away_team_name, ' FC$', ''), '^AFC ', ''
-        ) as away_team
+        regexp_replace(regexp_replace(home_team_name, ' FC$', ''), '^AFC ', '') as home_team,
+        regexp_replace(regexp_replace(away_team_name, ' FC$', ''), '^AFC ', '') as away_team
     from raw.live_matches
     where
         source = 'football-data.org'
@@ -43,80 +21,39 @@ match_results as (
     order by match_id asc, ingested_at desc
 ),
 
--- Expand to per-team results
+-- Expand each match into two team-level rows (home + away)
 team_results as (
     select
-        matchday,
-        home_team as team,
-        home_score as gf,
-        away_score as ga,
-        case
-            when home_score > away_score then 3 when
-                home_score = away_score
-                then 1
-            else 0
-        end as pts,
+        matchday, home_team as team, home_score as gf, away_score as ga,
+        case when home_score > away_score then 3 when home_score = away_score then 1 else 0 end as pts,
         match_date
     from match_results
     union all
     select
-        matchday,
-        away_team as team,
-        away_score as gf,
-        home_score as ga,
-        case
-            when away_score > home_score then 3 when
-                away_score = home_score
-                then 1
-            else 0
-        end as pts,
+        matchday, away_team as team, away_score as gf, home_score as ga,
+        case when away_score > home_score then 3 when away_score = home_score then 1 else 0 end as pts,
         match_date
     from match_results
 ),
 
--- Cumulative standings at each matchday
+-- Cumulative standings at each matchday (running totals)
 cumulative as (
     select
-        tr.team,
-        tr.matchday as through_matchday,
-        sum(tr.pts)
-            over (
-                partition by tr.team
-                order by tr.matchday rows unbounded preceding
-            )
-            as cum_points,
-        sum(tr.gf)
-            over (
-                partition by tr.team
-                order by tr.matchday rows unbounded preceding
-            )
-            as cum_gf,
-        sum(tr.ga)
-            over (
-                partition by tr.team
-                order by tr.matchday rows unbounded preceding
-            )
-            as cum_ga,
-        count(*)
-            over (
-                partition by tr.team
-                order by tr.matchday rows unbounded preceding
-            )
-            as cum_played,
-        max(tr.match_date)
-            over (
-                partition by tr.team
-                order by tr.matchday rows unbounded preceding
-            )
-            as matchday_date
-    from team_results as tr
+        team,
+        matchday,
+        sum(pts) over (partition by team order by matchday rows unbounded preceding) as cum_points,
+        sum(gf) over (partition by team order by matchday rows unbounded preceding) as cum_gf,
+        sum(ga) over (partition by team order by matchday rows unbounded preceding) as cum_ga,
+        count(*) over (partition by team order by matchday rows unbounded preceding) as cum_played,
+        max(match_date) over (partition by team order by matchday rows unbounded preceding) as matchday_date
+    from team_results
 ),
 
 -- Deduplicate to one row per team per matchday
 per_matchday as (
     select
         team as team_name,
-        through_matchday as matchday,
+        matchday,
         max(cum_points) as points,
         max(cum_gf) as goals_for,
         max(cum_ga) as goals_against,
@@ -124,62 +61,90 @@ per_matchday as (
         max(cum_played) as played,
         max(matchday_date) as matchday_date
     from cumulative
-    group by team, through_matchday
+    group by team, matchday
 ),
 
--- Rank at each matchday
+-- Rank teams at each matchday
 ranked as (
     select
         *,
         row_number() over (
             partition by matchday
-            order by
-                points desc, goal_difference desc, goals_for desc, team_name asc
+            order by points desc, goal_difference desc, goals_for desc, team_name asc
         ) as position
     from per_matchday
 ),
 
--- SCD Type 2: detect position changes
-with_changes as (
+-- Detect position changes using LAG (compare to previous matchday)
+with_prev as (
     select
         *,
-        lag(position)
-            over (partition by team_name order by matchday)
-            as prev_position,
-        case
-            when
-                lag(position)
-                    over (partition by team_name order by matchday)
-                is null
-                then true
-            when
-                lag(position) over (partition by team_name order by matchday)
-                != position
-                then true
-            else false
-        end as position_changed
+        lag(position) over (partition by team_name order by matchday) as prev_position
     from ranked
+),
+
+-- Assign a version group: increment only when position changes
+-- This groups consecutive matchdays at the same position together
+versioned as (
+    select
+        *,
+        sum(
+            case
+                when prev_position is null then 1
+                when position != prev_position then 1
+                else 0
+            end
+        ) over (partition by team_name order by matchday rows unbounded preceding) as version_group
+    from with_prev
+),
+
+-- Collapse each version group into a single SCD2 row
+scd2 as (
+    select
+        team_name,
+        position,
+        min(matchday) as valid_from_matchday,
+        max(matchday) as valid_to_matchday,
+        min(matchday_date) as valid_from_date,
+        max(matchday_date) as valid_to_date,
+        -- Stats at the END of this version period
+        max(points) as points,
+        max(played) as played,
+        max(goals_for) as goals_for,
+        max(goals_against) as goals_against,
+        max(goal_difference) as goal_difference,
+        -- Duration
+        max(matchday) - min(matchday) + 1 as matchdays_held
+    from versioned
+    group by team_name, position, version_group
 )
 
 select
     team_name,
-    matchday,
-    matchday_date,
     position,
-    prev_position,
-    position_changed,
+    valid_from_matchday,
+    valid_to_matchday,
+    valid_from_date,
+    valid_to_date,
     points,
     played,
     goals_for,
     goals_against,
     goal_difference,
-    -- Movement direction
+    matchdays_held,
+    -- Movement from previous version
+    lag(position) over (partition by team_name order by valid_from_matchday) as prev_position,
     case
-        when prev_position is null then 'NEW'
-        when position < prev_position then 'UP'
-        when position > prev_position then 'DOWN'
+        when lag(position) over (partition by team_name order by valid_from_matchday) is null then 'NEW'
+        when position < lag(position) over (partition by team_name order by valid_from_matchday) then 'UP'
+        when position > lag(position) over (partition by team_name order by valid_from_matchday) then 'DOWN'
         else 'SAME'
     end as movement,
-    coalesce(prev_position - position, 0) as positions_moved
-from with_changes
-order by matchday, position
+    -- Is this the current active version?
+    case
+        when valid_to_matchday = max(valid_to_matchday) over (partition by team_name)
+        then true else false
+    end as is_current
+
+from scd2
+order by team_name, valid_from_matchday

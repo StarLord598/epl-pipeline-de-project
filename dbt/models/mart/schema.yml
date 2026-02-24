@@ -150,38 +150,43 @@ models:
 
   - name: mart_scd2_standings
     description: >
-      SCD Type 2 — League position history tracking. Reconstructs standings at each
-      matchday by computing cumulative points/GD from match results, then ranks teams.
-      Detects position changes and records movement direction (UP/DOWN/SAME/NEW).
-      Enables: "Arsenal moved to #1 on GW7 and has held it since."
-      Full-refresh table. One row per team per matchday (20 teams × completed matchdays).
+      SCD Type 2 — Pure implementation of league position history tracking.
+      Only creates a new version when a team's position CHANGES. Consecutive matchdays
+      at the same position are collapsed into a single row with valid_from/valid_to boundaries.
+      Enables point-in-time queries: "What position was Arsenal in on GW12?"
+      Enables duration queries: "How long did Arsenal hold 1st place?"
+      Full-refresh table. ~330 rows (vs 760 if snapshot-per-matchday = 57% less data).
     columns:
       - name: team_name
         description: "Normalized team name"
-      - name: matchday
-        description: "Gameweek number (1-38)"
-      - name: matchday_date
-        description: "Date of the last match in this matchday"
       - name: position
-        description: "Team's league position after this matchday"
-      - name: prev_position
-        description: "Team's position after the previous matchday (null for GW1)"
-      - name: position_changed
-        description: "Boolean: true if position differs from previous matchday"
+        description: "Team's league position during this version"
+      - name: valid_from_matchday
+        description: "First matchday this position was held (version start)"
+      - name: valid_to_matchday
+        description: "Last matchday this position was held (version end)"
+      - name: valid_from_date
+        description: "Calendar date of the valid_from matchday"
+      - name: valid_to_date
+        description: "Calendar date of the valid_to matchday"
       - name: points
-        description: "Cumulative points through this matchday"
+        description: "Cumulative points at end of this version period"
       - name: played
-        description: "Cumulative matches played through this matchday"
+        description: "Cumulative matches played at end of this version period"
       - name: goals_for
-        description: "Cumulative goals scored"
+        description: "Cumulative goals scored at end of this version period"
       - name: goals_against
-        description: "Cumulative goals conceded"
+        description: "Cumulative goals conceded at end of this version period"
       - name: goal_difference
-        description: "Cumulative GF minus GA"
+        description: "Cumulative GF minus GA at end of this version period"
+      - name: matchdays_held
+        description: "Number of consecutive matchdays this position was held"
+      - name: prev_position
+        description: "Position in the previous version (null for first version)"
       - name: movement
-        description: "Direction of position change: UP, DOWN, SAME, or NEW (GW1)"
-      - name: positions_moved
-        description: "Number of positions moved (positive = climbed, negative = dropped)"
+        description: "Direction of change from previous version: UP, DOWN, SAME, or NEW"
+      - name: is_current
+        description: "Boolean: true if this is the team's current active version"
 
   - name: mart_points_race
     description: >

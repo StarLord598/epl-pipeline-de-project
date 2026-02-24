@@ -20,12 +20,17 @@ interface FormRow {
 
 interface SCD2Row {
   team_name: string;
-  matchday: number;
   position: number;
+  valid_from_matchday: number;
+  valid_to_matchday: number;
+  valid_from_date: string;
+  valid_to_date: string;
+  points: number;
+  played: number;
+  matchdays_held: number;
   prev_position: number | null;
   movement: string;
-  positions_moved: number;
-  points: number;
+  is_current: boolean;
 }
 
 const MOMENTUM_STYLE: Record<string, { bg: string; text: string; label: string }> = {
@@ -52,6 +57,7 @@ export default function FormPage() {
   const [form, setForm] = useState<FormRow[]>([]);
   const [scd2, setScd2] = useState<SCD2Row[]>([]);
   const [view, setView] = useState<"momentum" | "positions">("momentum");
+  const [selectedTeam, setSelectedTeam] = useState<string>("Arsenal");
 
   useEffect(() => {
     fetch("/data/rolling_form.json").then((r) => r.json()).then(setForm);
@@ -66,18 +72,22 @@ export default function FormPage() {
     COLD: form.filter((r) => r.current_momentum === "COLD"),
   };
 
-  // SCD2: biggest movers this season
-  const maxMD = scd2.length > 0 ? Math.max(...scd2.map((r) => r.matchday)) : 0;
-  const latestPositions = scd2.filter((r) => r.matchday === maxMD);
-  const firstPositions = scd2.filter((r) => r.matchday === 1);
-  const movers = latestPositions.map((curr) => {
-    const first = firstPositions.find((f) => f.team_name === curr.team_name);
+  // SCD2: get unique teams and current team's history
+  const teams = Array.from(new Set(scd2.map((r) => r.team_name))).sort();
+  const teamHistory = scd2.filter((r) => r.team_name === selectedTeam);
+  const currentVersions = scd2.filter((r) => r.is_current).sort((a, b) => a.position - b.position);
+
+  // Biggest movers: compare first version position to current version position
+  const movers = currentVersions.map((curr) => {
+    const firstVersion = scd2.find((r) => r.team_name === curr.team_name && r.movement === "NEW");
+    const startPos = firstVersion?.position ?? curr.position;
     return {
       team: curr.team_name,
       current: curr.position,
-      start: first?.position ?? curr.position,
-      change: (first?.position ?? curr.position) - curr.position,
+      start: startPos,
+      change: startPos - curr.position,
       points: curr.points,
+      versions: scd2.filter((r) => r.team_name === curr.team_name).length,
     };
   }).sort((a, b) => b.change - a.change);
 
@@ -94,9 +104,9 @@ export default function FormPage() {
           </div>
         </div>
         <DataSourceBadge
-          pattern="Rolling Window"
+          pattern="Rolling Window + SCD Type 2"
           source="Gold: mart_rolling_form + mart_scd2_standings"
-          explanation="Two patterns: (1) Rolling Window — AVG(points) OVER (ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) for 5-game PPG, classifying HOT/STEADY/COOLING/COLD. (2) SCD Type 2 — tracks every position change with valid_from/valid_to for point-in-time queries."
+          explanation="Two patterns: (1) Rolling Window — AVG(points) OVER (ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) for 5-game PPG, classifying HOT/STEADY/COOLING/COLD. (2) SCD Type 2 — tracks every position change with valid_from/valid_to for point-in-time queries. Only creates a new version when position changes — consecutive matchdays at the same position collapse into one row."
         />
         <div className="flex gap-2">
           <button
@@ -158,11 +168,79 @@ export default function FormPage() {
           })}
         </div>
       ) : (
-        <div>
+        <div className="space-y-6">
+          {/* Team Selector + Version History */}
+          <div className="glass rounded-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+              <h2 className="text-sm text-gray-400 uppercase tracking-wider">
+                SCD Type 2 — Position Version History
+              </h2>
+              <select
+                value={selectedTeam}
+                onChange={(e) => setSelectedTeam(e.target.value)}
+                className="bg-white/10 text-white text-sm rounded-lg px-3 py-1.5 border border-white/20"
+              >
+                {teams.map((t) => (
+                  <option key={t} value={t} className="bg-[#1a1a2e]">{t}</option>
+                ))}
+              </select>
+            </div>
+            <div className="p-4">
+              <p className="text-gray-400 text-xs mb-4">
+                {selectedTeam} has <span className="text-white font-bold">{teamHistory.length} versions</span> this season
+                — position changed {teamHistory.length - 1} times across {teamHistory.length > 0 ? teamHistory[teamHistory.length - 1].valid_to_matchday : 0} matchdays
+              </p>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-400 text-xs uppercase border-b border-white/10">
+                    <th className="text-left py-2 px-2">Position</th>
+                    <th className="text-left py-2 px-2">From GW</th>
+                    <th className="text-left py-2 px-2">To GW</th>
+                    <th className="text-center py-2 px-2">Held</th>
+                    <th className="text-right py-2 px-2">Points</th>
+                    <th className="text-center py-2 px-2">Movement</th>
+                    <th className="text-center py-2 px-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {teamHistory.map((v, i) => (
+                    <tr key={i} className={v.is_current ? "bg-[#00ff85]/5" : ""}>
+                      <td className="py-2.5 px-2">
+                        <span className="text-white font-bold text-lg">#{v.position}</span>
+                      </td>
+                      <td className="py-2.5 px-2 text-gray-300">GW{v.valid_from_matchday}</td>
+                      <td className="py-2.5 px-2 text-gray-300">GW{v.valid_to_matchday}</td>
+                      <td className="py-2.5 px-2 text-center">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          v.matchdays_held >= 10 ? "bg-green-500/20 text-green-400" :
+                          v.matchdays_held >= 5 ? "bg-yellow-500/20 text-yellow-400" :
+                          "bg-white/10 text-gray-400"
+                        }`}>
+                          {v.matchdays_held} GW{v.matchdays_held !== 1 ? "s" : ""}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-2 text-right text-gray-300">{v.points}</td>
+                      <td className="py-2.5 px-2 text-center">
+                        {v.movement === "UP" && <span className="text-green-400 font-bold">▲ {v.prev_position ? v.prev_position - v.position : 0}</span>}
+                        {v.movement === "DOWN" && <span className="text-red-400 font-bold">▼ {v.prev_position ? v.position - v.prev_position : 0}</span>}
+                        {v.movement === "NEW" && <span className="text-blue-400 text-xs">NEW</span>}
+                        {v.movement === "SAME" && <span className="text-gray-500">—</span>}
+                      </td>
+                      <td className="py-2.5 px-2 text-center">
+                        {v.is_current && <span className="text-xs bg-[#00ff85]/20 text-[#00ff85] px-2 py-0.5 rounded-full">CURRENT</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Season Movers Summary */}
           <div className="glass rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-b border-white/10">
               <h2 className="text-sm text-gray-400 uppercase tracking-wider">
-                Season Position Movement (GW1 → GW{maxMD})
+                Season Movers — Start vs Current Position
               </h2>
             </div>
             <div className="divide-y divide-white/5">
@@ -175,6 +253,7 @@ export default function FormPage() {
                   <div className="flex items-center gap-4">
                     <span className="text-gray-400 text-sm">{m.points} pts</span>
                     <span className="text-gray-500 text-xs">started #{m.start}</span>
+                    <span className="text-gray-500 text-xs">{m.versions} versions</span>
                     <span className={`font-bold text-sm min-w-[50px] text-right ${
                       m.change > 0 ? "text-green-400" :
                       m.change < 0 ? "text-red-400" : "text-gray-500"

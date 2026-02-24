@@ -6,12 +6,13 @@ import fs from "fs";
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/standings/history?team=Arsenal&matchday=15
- * SCD2 position history — tracks when teams changed position
+ * GET /api/standings/history?team=Arsenal
+ * SCD2 position history — pure implementation
+ * Only returns rows where position changed (each row = one version)
  * Query params:
  *   - team: filter by team name (optional)
- *   - matchday: filter by specific matchday (optional)
- *   - changes_only: if "true", only return rows where position changed
+ *   - current_only: if "true", only return current active versions
+ *   - matchday: find which version was active at a given matchday (point-in-time query)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -30,18 +31,19 @@ export async function GET(request: NextRequest) {
       data = data.filter((r) => r.team_name.toLowerCase() === teamVal.toLowerCase());
     }
 
+    // Point-in-time query: find which version was active at a specific matchday
     const matchday = searchParams.get("matchday");
     if (matchday) {
       const mdVal = parseInt(matchday, 10);
       if (!isNaN(mdVal)) {
         const clamped = Math.max(1, Math.min(mdVal, 38));
-        data = data.filter((r) => r.matchday === clamped);
+        data = data.filter((r) => r.valid_from_matchday <= clamped && r.valid_to_matchday >= clamped);
       }
     }
 
-    const changesOnly = searchParams.get("changes_only");
-    if (changesOnly === "true") {
-      data = data.filter((r) => r.position_changed);
+    const currentOnly = searchParams.get("current_only");
+    if (currentOnly === "true") {
+      data = data.filter((r) => r.is_current);
     }
 
     return NextResponse.json({
