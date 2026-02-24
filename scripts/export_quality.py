@@ -54,17 +54,21 @@ def main() -> None:
                 "layer": "Bronze" if schema == "raw" else "Silver" if schema == "staging" else "Gold",
             })
 
-    # Also check views in staging
+    # Also check views in staging (Silver layer is all views — zero storage by design)
     for row in conn.execute("""
         SELECT view_name as table_name FROM duckdb_views()
         WHERE schema_name = 'staging'
     """).fetchall():
         count = conn.execute(f"SELECT COUNT(*) FROM {_safe_id('staging')}.{_safe_id(row[0])}").fetchone()[0]
+        col_count = conn.execute("""
+            SELECT COUNT(*) FROM duckdb_columns()
+            WHERE schema_name = 'staging' AND table_name = ?
+        """, [row[0]]).fetchone()[0]
         tables.append({
             "schema": "staging",
             "table": row[0],
             "row_count": count,
-            "column_count": None,
+            "column_count": col_count,
             "layer": "Silver",
         })
 
