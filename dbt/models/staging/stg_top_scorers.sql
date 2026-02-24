@@ -18,9 +18,9 @@ ranked as (
         goals_per_game,
         assists_per_game,
         ingested_at,
-        ROW_NUMBER() OVER (
-            PARTITION BY player_id
-            ORDER BY ingested_at DESC
+        ROW_NUMBER() over (
+            partition by player_id
+            order by ingested_at desc
         ) as rn
     from source
     where player_id is not null

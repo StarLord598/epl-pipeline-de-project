@@ -24,23 +24,23 @@ select
     m.match_status,
 
     -- Home team result
-    case when m.winner = 'HOME_TEAM' then 'W'
-         when m.winner = 'DRAW'      then 'D'
-         when m.winner = 'AWAY_TEAM' then 'L'
-         else null
+    case
+        when m.winner = 'HOME_TEAM' then 'W'
+        when m.winner = 'DRAW' then 'D'
+        when m.winner = 'AWAY_TEAM' then 'L'
     end as home_result,
 
     -- Away team result
-    case when m.winner = 'AWAY_TEAM' then 'W'
-         when m.winner = 'DRAW'      then 'D'
-         when m.winner = 'HOME_TEAM' then 'L'
-         else null
+    case
+        when m.winner = 'AWAY_TEAM' then 'W'
+        when m.winner = 'DRAW' then 'D'
+        when m.winner = 'HOME_TEAM' then 'L'
     end as away_result
 
-from {{ ref('stg_matches') }} m
+from {{ ref('stg_matches') }} as m
 
 {% if is_incremental() %}
-where m.match_id not in (select match_id from {{ this }})
+    where m.match_id not in (select match_id from {{ this }})
 {% endif %}
 
 order by m.match_date desc, m.matchday desc

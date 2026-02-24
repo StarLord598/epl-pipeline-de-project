@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,8 +11,9 @@ from pathlib import Path
 import duckdb
 import requests
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)-5s  %(message)s", datefmt="%H:%M:%S")
-log = logging.getLogger(__name__)
+from log_config import setup_logger
+
+log = setup_logger("ingest_weather")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "data" / "epl_pipeline.duckdb"

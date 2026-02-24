@@ -5,8 +5,12 @@
 with ranked as (
     select
         *,
-        row_number() over (partition by match_id order by ingested_at asc) as first_rank,
-        row_number() over (partition by match_id order by ingested_at desc) as latest_rank,
+        row_number()
+            over (partition by match_id order by ingested_at asc)
+            as first_rank,
+        row_number()
+            over (partition by match_id order by ingested_at desc)
+            as latest_rank,
         count(*) over (partition by match_id) as total_versions
     from {{ ref('stg_live_matches') }}
 ),
@@ -55,7 +59,7 @@ select
     f.first_seen_at,
     l.last_updated_at,
     l.total_versions as update_count,
-    case when l.total_versions > 1 then true else false end as is_correction
-from latest l
-inner join first_seen f on l.match_id = f.match_id
+    coalesce(l.total_versions > 1, false) as is_correction
+from latest as l
+inner join first_seen as f on l.match_id = f.match_id
 order by l.utc_date desc

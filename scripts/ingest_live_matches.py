@@ -15,6 +15,9 @@ from typing import Any
 import requests
 
 from live_common import ensure_live_tables, get_conn, load_env_file, log_run
+from log_config import setup_logger
+
+log = setup_logger("ingest_live_matches")
 
 
 def fetch_football_data_org(api_key: str) -> list[dict[str, Any]]:
@@ -86,6 +89,7 @@ def fetch_thesportsdb_fallback() -> list[dict[str, Any]]:
 def main() -> None:
     load_env_file()
     api_key = os.getenv("FOOTBALL_DATA_API_KEY", "").strip()
+    log.info("Starting live match ingestion")
 
     conn = get_conn()
     ensure_live_tables(conn)
@@ -103,13 +107,13 @@ def main() -> None:
                 raw_matches = [json.loads(r["raw_json"]) for r in rows if r.get("raw_json")]
                 result = validate_matches(raw_matches)
                 if not result.valid:
-                    print(f"  ⚠️  Contract validation FAILED: {result.records_passed}/{result.records_checked} records OK")
+                    log.warning("Contract validation FAILED: %d/%d records OK", result.records_passed, result.records_checked)
                     for v in result.violations[:5]:
-                        print(f"      [{v.severity}] {v.field}: {v.message}")
+                        log.warning("  [%s] %s: %s", v.severity, v.field, v.message)
                 else:
-                    print(f"  ✅ Contract validated: {result.records_passed}/{result.records_checked} records OK")
+                    log.info("Contract validated: %d/%d records OK", result.records_passed, result.records_checked)
             except ImportError:
-                print("  ⚠️  Contract validation skipped: contracts module not available")
+                log.warning("Contract validation skipped: contracts module not available")
         else:
             rows = fetch_thesportsdb_fallback()
             source_used = "thesportsdb"
@@ -147,7 +151,7 @@ def main() -> None:
         inserted += 1
 
     log_run(conn, "live_matches", "success", f"source={source_used}", inserted)
-    print(f"[LIVE_MATCHES] inserted={inserted} source={source_used}")
+    log.info("Ingestion complete: inserted=%d source=%s", inserted, source_used)
     conn.close()
 
 

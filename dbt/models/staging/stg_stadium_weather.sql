@@ -2,7 +2,9 @@
 with ranked as (
     select
         *,
-        row_number() over (partition by team_name order by fetched_at desc) as rn
+        row_number()
+            over (partition by team_name order by fetched_at desc)
+            as rn
     from {{ source('raw', 'stadium_weather') }}
 )
 
