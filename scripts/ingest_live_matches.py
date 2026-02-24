@@ -14,7 +14,6 @@ from typing import Any
 
 import requests
 
-from env_check import require_football_api_key
 from live_common import ensure_live_tables, get_conn, load_env_file, log_run
 from log_config import setup_logger
 
