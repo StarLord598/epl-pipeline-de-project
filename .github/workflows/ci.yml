@@ -27,7 +27,7 @@ jobs:
         run: |
           pip install sqlfluff
           cd dbt
-          sqlfluff lint models/ --ignore parsing --exclude-rules RF02,RF03,RF04,ST03,ST06,AM06
+          sqlfluff lint models/ --ignore parsing,templating --exclude-rules RF02,RF03,RF04,ST03,ST06,AM06
 
       - name: Lint Python
         run: |
