@@ -43,5 +43,8 @@ enabled = False
 [sqlfluff:rules:references.keywords]
 enabled = False
 
+[sqlfluff:rules:references.from]
+enabled = False
+
 [sqlfluff:rules:convention.casting_style]
 preferred_type_casting_style = consistent

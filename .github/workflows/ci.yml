@@ -27,7 +27,7 @@ jobs:
         run: |
           pip install sqlfluff
           cd dbt
-          sqlfluff lint models/ --dialect duckdb --ignore parsing
+          sqlfluff lint models/ --ignore parsing
 
       - name: Lint Python
         run: |

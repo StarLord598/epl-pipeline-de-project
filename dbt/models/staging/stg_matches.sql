@@ -13,9 +13,9 @@ cleaned as (
         season_id,
         season_name,
         {% if target.type == 'bigquery' %}
-        safe_cast(match_date as date) as match_date,
+        safe_cast(match_date as date) as match_date,  -- noqa: LT02
         {% else %}
-        try_cast(match_date as date) as match_date,
+        try_cast(match_date as date) as match_date,  -- noqa: LT02
         {% endif %}
         kick_off,
         home_team_id,
