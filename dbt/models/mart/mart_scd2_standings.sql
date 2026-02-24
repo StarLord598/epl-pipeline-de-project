@@ -24,13 +24,19 @@ with match_results as (
 -- Expand each match into two team-level rows (home + away)
 team_results as (
     select
-        matchday, home_team as team, home_score as gf, away_score as ga,
+        matchday,
+        home_team as team,
+        home_score as gf,
+        away_score as ga,
         case when home_score > away_score then 3 when home_score = away_score then 1 else 0 end as pts,
         match_date
     from match_results
     union all
     select
-        matchday, away_team as team, away_score as gf, home_score as ga,
+        matchday,
+        away_team as team,
+        away_score as gf,
+        home_score as ga,
         case when away_score > home_score then 3 when away_score = home_score then 1 else 0 end as pts,
         match_date
     from match_results
@@ -141,10 +147,7 @@ select
         else 'SAME'
     end as movement,
     -- Is this the current active version?
-    case
-        when valid_to_matchday = max(valid_to_matchday) over (partition by team_name)
-        then true else false
-    end as is_current
+    coalesce(valid_to_matchday = max(valid_to_matchday) over (partition by team_name), false) as is_current
 
 from scd2
 order by team_name, valid_from_matchday
