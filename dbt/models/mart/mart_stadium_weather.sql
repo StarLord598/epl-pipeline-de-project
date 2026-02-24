@@ -21,6 +21,10 @@ select
     w.weather_code,
     w.weather_description,
     -- Pitch condition classification
+    t.tier as team_tier,
+    -- Temperature comfort classification
+    t.position as current_position,
+    w.fetched_at,
     case
         when w.weather_code in (0, 1) then 'Excellent'
         when w.weather_code in (2, 3) then 'Good'
@@ -32,7 +36,6 @@ select
         when w.weather_code >= 95 then 'Dangerous (Storm)'
         else 'Unknown'
     end as pitch_condition,
-    -- Temperature comfort classification
     case
         when w.temperature_c < 0 then 'Freezing'
         when w.temperature_c < 8 then 'Cold'
@@ -40,10 +43,7 @@ select
         when w.temperature_c < 22 then 'Comfortable'
         when w.temperature_c < 30 then 'Warm'
         else 'Hot'
-    end as temperature_class,
-    t.tier as team_tier,
-    t.position as current_position,
-    w.fetched_at
-from weather w
-left join teams t on w.team_name = t.team_name
+    end as temperature_class
+from weather as w
+left join teams as t on w.team_name = t.team_name
 order by w.team_name

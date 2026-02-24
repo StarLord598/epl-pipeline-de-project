@@ -15,7 +15,9 @@ season_stats as (
         sum(ga) as total_goals_conceded,
         max(last_5_form) as current_form
     from {{ ref('mart_rolling_form') }}
-    where recency_rank <= (select max(matchday) from {{ ref('mart_rolling_form') }})
+    where
+        recency_rank
+        <= (select max(matchday) from {{ ref('mart_rolling_form') }})
     group by team_name
 )
 
@@ -43,6 +45,6 @@ select
         when cs.position <= 17 then 'RELEGATION BATTLE'
         else 'RELEGATION ZONE'
     end as tier
-from current_standings cs
-left join season_stats ss on cs.team_name = ss.team_name
+from current_standings as cs
+left join season_stats as ss on cs.team_name = ss.team_name
 order by cs.position

@@ -24,14 +24,13 @@ with_zones as (
         goals_conceded_per_game,
         season,
         -- Qualification zones based on EPL rules
+        ingested_at,
         case
             when position <= 4 then 'champions_league'
             when position = 5 then 'europa_league'
             when position = 6 then 'conference_league'
             when position >= 18 then 'relegation'
-            else null
-        end as qualification_zone,
-        ingested_at
+        end as qualification_zone
     from standings
 )
 
