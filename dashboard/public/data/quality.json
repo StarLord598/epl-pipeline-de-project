@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-23T19:08:14.173616+00:00",
+  "generated_at": "2026-02-24T20:39:51.928514+00:00",
   "tables": [
     {
       "schema": "raw",
@@ -18,14 +18,14 @@
     {
       "schema": "raw",
       "table": "live_matches",
-      "row_count": 2930,
+      "row_count": 3166,
       "column_count": 14,
       "layer": "Bronze"
     },
     {
       "schema": "raw",
       "table": "live_standings",
-      "row_count": 5980,
+      "row_count": 8920,
       "column_count": 16,
       "layer": "Bronze"
     },
@@ -39,7 +39,7 @@
     {
       "schema": "raw",
       "table": "pipeline_runs",
-      "row_count": 1180,
+      "row_count": 1770,
       "column_count": 6,
       "layer": "Bronze"
     },
@@ -48,6 +48,13 @@
       "table": "player_stats",
       "row_count": 1176,
       "column_count": 9,
+      "layer": "Bronze"
+    },
+    {
+      "schema": "raw",
+      "table": "stadium_weather",
+      "row_count": 20,
+      "column_count": 11,
       "layer": "Bronze"
     },
     {
@@ -109,7 +116,7 @@
     {
       "schema": "mart",
       "table": "mart_points_race",
-      "row_count": 540,
+      "row_count": 542,
       "column_count": 4,
       "layer": "Gold"
     },
@@ -123,15 +130,29 @@
     {
       "schema": "mart",
       "table": "mart_rolling_form",
-      "row_count": 540,
+      "row_count": 542,
       "column_count": 12,
       "layer": "Gold"
     },
     {
       "schema": "mart",
+      "table": "mart_scd1_matches",
+      "row_count": 380,
+      "column_count": 16,
+      "layer": "Gold"
+    },
+    {
+      "schema": "mart",
       "table": "mart_scd2_standings",
-      "row_count": 540,
+      "row_count": 542,
       "column_count": 13,
+      "layer": "Gold"
+    },
+    {
+      "schema": "mart",
+      "table": "mart_stadium_weather",
+      "row_count": 20,
+      "column_count": 15,
       "layer": "Gold"
     },
     {
@@ -159,272 +180,225 @@
       "schema": "staging",
       "table": "silver_live_match_state",
       "row_count": 407,
-      "column_count": null,
+      "column_count": 13,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_events",
       "row_count": 129401,
-      "column_count": null,
+      "column_count": 18,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_lineups",
       "row_count": 1111,
-      "column_count": null,
+      "column_count": 7,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_live_matches",
       "row_count": 380,
-      "column_count": null,
+      "column_count": 15,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_live_standings",
       "row_count": 20,
-      "column_count": null,
+      "column_count": 18,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_matches",
       "row_count": 380,
-      "column_count": null,
+      "column_count": 17,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_matches_2324",
       "row_count": 380,
-      "column_count": null,
+      "column_count": 16,
+      "layer": "Silver"
+    },
+    {
+      "schema": "staging",
+      "table": "stg_stadium_weather",
+      "row_count": 20,
+      "column_count": 11,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_standings",
       "row_count": 20,
-      "column_count": null,
+      "column_count": 10,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_standings_2324",
       "row_count": 20,
-      "column_count": null,
+      "column_count": 10,
       "layer": "Silver"
     },
     {
       "schema": "staging",
       "table": "stg_top_scorers",
       "row_count": 30,
-      "column_count": null,
+      "column_count": 9,
       "layer": "Silver"
     }
   ],
   "freshness": [
     {
       "table": "raw.live_matches",
-      "last_updated": "2026-02-23 19:02:07.440481",
+      "last_updated": "2026-02-24 20:30:12.903853",
       "sla_hours": 1
     },
     {
       "table": "raw.live_standings",
-      "last_updated": "2026-02-23 19:02:11.132227",
+      "last_updated": "2026-02-24 20:30:19.561192",
       "sla_hours": 1
     }
   ],
   "tests": {
-    "total": 29,
-    "passed": 29,
+    "total": 20,
+    "passed": 20,
     "failed": 0,
     "warned": 0,
     "results": [
       {
-        "test_name": "71ea79d362",
-        "status": "pass",
-        "execution_time": 0.112,
-        "message": null
-      },
-      {
-        "test_name": "2552bea790",
-        "status": "pass",
-        "execution_time": 0.114,
-        "message": null
-      },
-      {
         "test_name": "76b99a328b",
         "status": "pass",
-        "execution_time": 0.113,
+        "execution_time": 0.231,
+        "message": null
+      },
+      {
+        "test_name": "71ea79d362",
+        "status": "pass",
+        "execution_time": 0.233,
         "message": null
       },
       {
         "test_name": "6fb691b5cb",
         "status": "pass",
-        "execution_time": 0.116,
+        "execution_time": 0.24,
         "message": null
       },
       {
-        "test_name": "e1bf92f16d",
+        "test_name": "2552bea790",
         "status": "pass",
-        "execution_time": 0.067,
-        "message": null
-      },
-      {
-        "test_name": "b5744cbfe4",
-        "status": "pass",
-        "execution_time": 0.072,
-        "message": null
-      },
-      {
-        "test_name": "4d5758bc89",
-        "status": "pass",
-        "execution_time": 0.073,
+        "execution_time": 0.243,
         "message": null
       },
       {
         "test_name": "c4fd08d158",
         "status": "pass",
-        "execution_time": 0.077,
+        "execution_time": 0.266,
         "message": null
       },
       {
-        "test_name": "285392df83",
+        "test_name": "b5744cbfe4",
         "status": "pass",
-        "execution_time": 0.099,
+        "execution_time": 0.272,
+        "message": null
+      },
+      {
+        "test_name": "e1bf92f16d",
+        "status": "pass",
+        "execution_time": 0.274,
+        "message": null
+      },
+      {
+        "test_name": "4d5758bc89",
+        "status": "pass",
+        "execution_time": 0.285,
+        "message": null
+      },
+      {
+        "test_name": "22f65fd094",
+        "status": "pass",
+        "execution_time": 0.286,
+        "message": null
+      },
+      {
+        "test_name": "68d01496a9",
+        "status": "pass",
+        "execution_time": 0.292,
+        "message": null
+      },
+      {
+        "test_name": "4101ee8feb",
+        "status": "pass",
+        "execution_time": 0.241,
+        "message": null
+      },
+      {
+        "test_name": "bcd529333b",
+        "status": "pass",
+        "execution_time": 0.3,
         "message": null
       },
       {
         "test_name": "f3c495539e",
         "status": "pass",
-        "execution_time": 0.105,
-        "message": null
-      },
-      {
-        "test_name": "f86e14472d",
-        "status": "pass",
-        "execution_time": 0.138,
-        "message": null
-      },
-      {
-        "test_name": "94279837c8",
-        "status": "pass",
-        "execution_time": 0.168,
-        "message": null
-      },
-      {
-        "test_name": "2aec2d5585",
-        "status": "pass",
-        "execution_time": 0.118,
-        "message": null
-      },
-      {
-        "test_name": "b74a5052ea",
-        "status": "pass",
-        "execution_time": 0.146,
-        "message": null
-      },
-      {
-        "test_name": "603ea5cb58",
-        "status": "pass",
-        "execution_time": 0.132,
-        "message": null
-      },
-      {
-        "test_name": "3d7532239f",
-        "status": "pass",
-        "execution_time": 0.097,
-        "message": null
-      },
-      {
-        "test_name": "e3def26b60",
-        "status": "pass",
-        "execution_time": 0.089,
-        "message": null
-      },
-      {
-        "test_name": "088c28479a",
-        "status": "pass",
-        "execution_time": 0.126,
-        "message": null
-      },
-      {
-        "test_name": "cecf56fa0c",
-        "status": "pass",
-        "execution_time": 0.145,
-        "message": null
-      },
-      {
-        "test_name": "b9f326926f",
-        "status": "pass",
-        "execution_time": 0.143,
-        "message": null
-      },
-      {
-        "test_name": "c299086ace",
-        "status": "pass",
-        "execution_time": 0.161,
+        "execution_time": 0.246,
         "message": null
       },
       {
         "test_name": "9bf0abccc6",
         "status": "pass",
-        "execution_time": 0.148,
+        "execution_time": 0.225,
+        "message": null
+      },
+      {
+        "test_name": "285392df83",
+        "status": "pass",
+        "execution_time": 0.234,
         "message": null
       },
       {
         "test_name": "e250f7cfa1",
         "status": "pass",
-        "execution_time": 0.111,
+        "execution_time": 0.235,
         "message": null
       },
       {
         "test_name": "9f9fcdb45e",
         "status": "pass",
-        "execution_time": 0.122,
+        "execution_time": 0.234,
+        "message": null
+      },
+      {
+        "test_name": "4a12962e17",
+        "status": "pass",
+        "execution_time": 0.235,
+        "message": null
+      },
+      {
+        "test_name": "eddb80220c",
+        "status": "pass",
+        "execution_time": 0.225,
         "message": null
       },
       {
         "test_name": "a71bc79314",
         "status": "pass",
-        "execution_time": 0.122,
-        "message": null
-      },
-      {
-        "test_name": "367c54f188",
-        "status": "pass",
-        "execution_time": 0.086,
-        "message": null
-      },
-      {
-        "test_name": "f2a9d5b2cb",
-        "status": "pass",
-        "execution_time": 0.104,
-        "message": null
-      },
-      {
-        "test_name": "34decb3861",
-        "status": "pass",
-        "execution_time": 0.062,
-        "message": null
-      },
-      {
-        "test_name": "7fdd3a801f",
-        "status": "pass",
-        "execution_time": 0.098,
+        "execution_time": 0.218,
         "message": null
       }
     ]
   },
   "summary": {
-    "total_tables": 32,
-    "bronze_tables": 8,
-    "silver_tables": 10,
-    "gold_tables": 14,
-    "total_rows": 406345
+    "total_tables": 36,
+    "bronze_tables": 9,
+    "silver_tables": 11,
+    "gold_tables": 16,
+    "total_rows": 410557
   }
 }
