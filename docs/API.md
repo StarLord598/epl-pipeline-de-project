@@ -39,22 +39,25 @@ Returns the current 2025-26 EPL standings.
 
 ### `GET /api/standings/history`
 
-Returns SCD Type 2 position tracking — how each team's league position changed across matchdays.
+Returns SCD Type 2 position history — pure versioned implementation. Only contains rows where a team's position **changed**. Consecutive matchdays at the same position are collapsed into a single row with `valid_from`/`valid_to` boundaries.
 
 **Query Parameters:**
 | Param | Type | Description |
 |-------|------|-------------|
 | `team` | string | Filter by team name (case-insensitive) |
-| `matchday` | integer | Filter by specific matchday (1-38) |
-| `changes_only` | boolean | If `true`, only return rows where position changed |
+| `matchday` | integer | Point-in-time query — returns which version was active at that matchday |
+| `current_only` | boolean | If `true`, only return the current active version per team |
 
 **Examples:**
 ```bash
-# Arsenal's full position history
+# Arsenal's full version history
 GET /api/standings/history?team=Arsenal
 
-# All position changes on matchday 10
-GET /api/standings/history?matchday=10&changes_only=true
+# What position was every team in on matchday 15?
+GET /api/standings/history?matchday=15
+
+# Current standings (latest active version per team)
+GET /api/standings/history?current_only=true
 ```
 
 **Response:**
@@ -64,21 +67,31 @@ GET /api/standings/history?matchday=10&changes_only=true
   "data": [
     {
       "team_name": "Arsenal",
-      "matchday": 1,
       "position": 6,
+      "valid_from_matchday": 1,
+      "valid_to_matchday": 1,
+      "valid_from_date": "2025-08-16",
+      "valid_to_date": "2025-08-16",
+      "points": 3,
+      "played": 1,
+      "matchdays_held": 1,
       "prev_position": null,
       "movement": "NEW",
-      "positions_moved": 0,
-      "points": 3
+      "is_current": false
     },
     {
       "team_name": "Arsenal",
-      "matchday": 2,
       "position": 1,
-      "prev_position": 6,
+      "valid_from_matchday": 7,
+      "valid_to_matchday": 31,
+      "valid_from_date": "2025-10-04",
+      "valid_to_date": "2026-02-22",
+      "points": 61,
+      "played": 22,
+      "matchdays_held": 25,
+      "prev_position": 2,
       "movement": "UP",
-      "positions_moved": 5,
-      "points": 6
+      "is_current": true
     }
   ]
 }

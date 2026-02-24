@@ -81,7 +81,7 @@
 |---------|---------------|---------|
 | **Medallion Architecture** | Bronze → Silver → Gold | 7 raw tables, 6 staging views, 12 Gold tables |
 | **SCD Type 1** | `mart_scd1_matches` | Upsert pattern — tracks corrections, update counts, first/last seen |
-| **SCD Type 2** | `mart_scd2_standings` | Tracks league position changes across 38 matchdays |
+| **SCD Type 2** | `mart_scd2_standings` | Pure versioned history — only creates rows on position change, with `valid_from`/`valid_to` boundaries |
 | **Real-Time Weather** | `mart_stadium_weather` | Live conditions at 20 EPL stadiums via Open-Meteo (free, no key) |
 | **Event Streaming (SSE)** | Match replay endpoint | Server-Sent Events stream 3,500+ events per match in real-time |
 | **Kimball Dimensions** | `dim_teams`, `dim_matchdays` | Fact/dimension modeling with tier classification |
@@ -172,7 +172,7 @@ All endpoints return JSON with `Cache-Control` headers.
 | Endpoint | Method | Params | Description |
 |----------|--------|--------|-------------|
 | `/api/league-table` | GET | — | Current league standings |
-| `/api/standings/history` | GET | `?team=Arsenal&matchday=15&changes_only=true` | SCD2 position history |
+| `/api/standings/history` | GET | `?team=Arsenal&matchday=15&current_only=true` | SCD2 position history (point-in-time) |
 | `/api/race` | GET | `?teams=Arsenal,Chelsea&from=5&to=20` | Cumulative points race |
 | `/api/form` | GET | `?team=Arsenal&momentum=HOT` | Rolling 5-game form |
 | `/api/teams` | GET | `?tier=TITLE+CONTENDER` | Team dimension with tiers |
@@ -330,7 +330,7 @@ epl-pipeline/
 
 | Pattern | Model | What It Demonstrates |
 |---------|-------|---------------------|
-| **SCD Type 2** | `mart_scd2_standings` | Position tracking with change detection across 38 matchdays |
+| **SCD Type 2** | `mart_scd2_standings` | Pure versioned history — collapses unchanged positions into single rows (~330 vs 760 rows) |
 | **Kimball Dimensions** | `dim_teams`, `dim_matchdays` | Star schema with tier classification and schedule awareness |
 | **Rolling Windows** | `mart_rolling_form` | 5-game rolling PPG, momentum tiers (HOT/STEADY/COOLING/COLD) |
 | **Cumulative Metrics** | `mart_points_race` | Running totals for season-long visualization |
