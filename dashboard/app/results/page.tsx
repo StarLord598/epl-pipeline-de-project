@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import DataSourceBadge from "@/components/DataSourceBadge";
 
 interface Match {
   match_id: number;
@@ -69,6 +70,11 @@ export default function ResultsPage() {
             </p>
           </div>
         </div>
+        <DataSourceBadge
+          pattern="Incremental Model"
+          source="Gold: mart_recent_results (incremental) → stg_live_matches"
+          explanation="dbt incremental materialization — only processes new matches since last run using WHERE ingested_at > (SELECT MAX(ingested_at) FROM this). Avoids full table rebuilds on each pipeline run. Idempotent and efficient for append-heavy match data."
+        />
       </div>
 
       {/* Round filter */}

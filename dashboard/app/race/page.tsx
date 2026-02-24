@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DataSourceBadge from "@/components/DataSourceBadge";
 import {
   LineChart,
   Line,
@@ -97,6 +98,11 @@ export default function RacePage() {
             </p>
           </div>
         </div>
+        <DataSourceBadge
+          pattern="Cumulative Metric"
+          source="Gold: mart_points_race → stg_live_matches → raw.live_matches"
+          explanation="Running total pattern — cumulates points per team per matchday using SUM() OVER (PARTITION BY team ORDER BY matchday). Each row stores cumulative points through that gameweek. Enables time-series visualization of the title race without client-side computation."
+        />
         <button
           onClick={() => setShowAll(!showAll)}
           className={`text-xs px-3 py-1.5 rounded-lg transition ${

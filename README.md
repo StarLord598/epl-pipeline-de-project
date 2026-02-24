@@ -3,8 +3,9 @@
 > **A production-grade data engineering platform** that ingests, transforms, tests, and serves Premier League data — orchestrated by Airflow, modeled in dbt, stored in DuckDB, and served through a Next.js dashboard with REST APIs.
 
 [![CI — EPL Pipeline](https://github.com/StarLord598/epl-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/StarLord598/epl-pipeline/actions)
-![dbt](https://img.shields.io/badge/dbt-15%20models-orange)
-![Tests](https://img.shields.io/badge/tests-29%20passing-brightgreen)
+![dbt](https://img.shields.io/badge/dbt-18%20models-orange)
+![Tests](https://img.shields.io/badge/tests-37%20passing-brightgreen)
+![Streaming](https://img.shields.io/badge/streaming-SSE%20replay-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
@@ -14,20 +15,20 @@
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        DATA SOURCES                                 │
-│  football-data.org API ──── StatsBomb Open Data ──── TheSportsDB   │
-│  (live scores/standings)    (129K match events)     (fallback API)  │
+│  football-data.org ── StatsBomb Open Data ── Open-Meteo ── TheSportsDB │
+│  (live scores)        (129K match events)   (weather)    (fallback)   │
 └──────────┬─────────────────────────┬──────────────────────┬─────────┘
            │                         │                      │
            ▼                         ▼                      ▼
 ┌──────────────────────────────────────────────────────────────────────┐
 │                    AIRFLOW ORCHESTRATION (Docker)                     │
 │                                                                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  ┌────────────┐ │
-│  │live_poll_15m │  │hourly_refresh│  │daily_recon│  │ingest_local│ │
-│  │  ⚡ 15 min   │  │  🔄 hourly   │  │  🌙 2 AM  │  │  📥 6 AM   │ │
-│  │  + matchday  │  │              │  │           │  │            │ │
-│  │  awareness   │  │              │  │           │  │            │ │
-│  └──────┬───────┘  └──────┬───────┘  └─────┬─────┘  └─────┬──────┘ │
+│  ┌────────────┐ ┌─────────────┐ ┌──────────┐ ┌───────────┐ ┌─────────┐│
+│  │live_poll   │ │hourly_refsh │ │daily_rec │ │ingest_lcl │ │weather  ││
+│  │ ⚡ 15 min  │ │ 🔄 hourly   │ │ 🌙 2 AM  │ │ 📥 6 AM   │ │🌤️ 30min ││
+│  │ + matchday │ │             │ │          │ │           │ │         ││
+│  │ awareness  │ │             │ │          │ │           │ │         ││
+│  └─────┬──────┘ └──────┬──────┘ └────┬─────┘ └─────┬─────┘ └────┬───┘│
 └─────────┼─────────────────┼────────────────┼──────────────┼─────────┘
           │                 │                │              │
           ▼                 ▼                ▼              ▼
@@ -46,12 +47,14 @@
 │ matches          │──▶│ stg_matches      │──▶│ mart_league_table    │
 │ events (129K)    │   │ stg_standings    │──▶│ mart_recent_results  │
 │ top_scorers      │   │ stg_top_scorers  │──▶│ mart_top_scorers     │
-│ standings        │   │                  │   │ mart_scd2_standings  │
-│                  │   │  5 views         │   │ mart_points_race     │
-│  6 tables        │   │  (zero storage)  │   │ mart_rolling_form    │
-│  (append-only)   │   │                  │   │ dim_teams            │
+│ standings        │   │ stg_stadium_wthr │──▶│ mart_scd2_standings  │
+│ stadium_weather  │   │                  │   │ mart_points_race     │
+│                  │   │  6 views         │   │ mart_rolling_form    │
+│  7 tables        │   │  (zero storage)  │   │ mart_scd1_matches    │
+│  (append-only)   │   │                  │   │ mart_stadium_weather │
+│                  │   │                  │   │ dim_teams            │
 │                  │   │                  │   │ dim_matchdays        │
-│                  │   │                  │   │  9 tables            │
+│                  │   │                  │   │  12 tables           │
 └──────────────────┘   └──────────────────┘   └──────────┬───────────┘
                                                          │
           ┌────────────────────────┬─────────────────────┤
@@ -76,8 +79,11 @@
 ### Data Engineering Patterns
 | Pattern | Implementation | Details |
 |---------|---------------|---------|
-| **Medallion Architecture** | Bronze → Silver → Gold | 6 raw tables, 5 staging views, 9 Gold tables |
+| **Medallion Architecture** | Bronze → Silver → Gold | 7 raw tables, 6 staging views, 12 Gold tables |
+| **SCD Type 1** | `mart_scd1_matches` | Upsert pattern — tracks corrections, update counts, first/last seen |
 | **SCD Type 2** | `mart_scd2_standings` | Tracks league position changes across 38 matchdays |
+| **Real-Time Weather** | `mart_stadium_weather` | Live conditions at 20 EPL stadiums via Open-Meteo (free, no key) |
+| **Event Streaming (SSE)** | Match replay endpoint | Server-Sent Events stream 3,500+ events per match in real-time |
 | **Kimball Dimensions** | `dim_teams`, `dim_matchdays` | Fact/dimension modeling with tier classification |
 | **Rolling Aggregations** | `mart_rolling_form` | 5-game rolling PPG, momentum classification (HOT/COLD) |
 | **Cumulative Metrics** | `mart_points_race` | Running point totals per team per matchday |
@@ -90,11 +96,12 @@
 ### Platform Capabilities
 | Capability | Details |
 |-----------|---------|
-| **5 Airflow DAGs** | Docker Compose with LocalExecutor + Postgres |
-| **15 dbt Models** | 5 views (Silver) + 9 tables + 1 incremental (Gold) |
-| **29 Data Tests** | All passing — schema, uniqueness, completeness |
-| **9 Dashboard Pages** | Interactive charts, live scores, quality monitoring |
-| **8 REST API Endpoints** | Filterable by team, matchday, momentum tier |
+| **6 Airflow DAGs** | Docker Compose with LocalExecutor + Postgres |
+| **18 dbt Models** | 6 views (Silver) + 11 tables + 1 incremental (Gold) |
+| **37 Data Tests** | All passing — schema, uniqueness, completeness |
+| **11 Dashboard Pages** | Interactive charts, live scores, streaming, weather, quality |
+| **10 REST API Endpoints** | Including SSE streaming endpoint for real-time event replay |
+| **Event Streaming** | SSE-based match replay — 129K StatsBomb events, live possession + scoreboard |
 | **Data Lineage** | Interactive dbt docs DAG at `/lineage` |
 | **CI/CD** | GitHub Actions: lint SQL/Python → dbt test → dashboard build |
 | **Full Documentation** | 150+ columns documented across all models and sources |
@@ -153,8 +160,10 @@ cp .env.example .env
 | ⚽ **Results** | `/results` | Match results browseable by gameweek |
 | 🎯 **Top Scorers** | `/scorers` | Golden Boot race with bar charts |
 | 📊 **Stats** | `/stats` | Radar charts, team comparisons (select up to 4 teams) |
+| 📡 **Streaming Replay** | `/stream` | SSE-powered match replay — live event feed, possession bar, scoreboard |
+| 🌤️ **Stadium Weather** | `/weather` | Near real-time weather at all 20 EPL stadiums — pitch conditions |
 | 🛡️ **Data Quality** | `/quality` | Test pass rates, freshness SLAs, medallion inventory, table row counts |
-| 🔗 **Data Lineage** | `/lineage` | Interactive dbt docs — full dependency graph for all 15 models |
+| 🔗 **Data Lineage** | `/lineage` | Interactive dbt docs — full dependency graph for all 18 models |
 
 ## 📡 REST API
 
@@ -171,6 +180,8 @@ All endpoints return JSON with `Cache-Control` headers.
 | `/api/live` | GET | — | Current live match data |
 | `/api/matches` | GET | — | Full match history |
 | `/api/scorers` | GET | — | Top scorers |
+| `/api/weather` | GET | — | Stadium weather conditions for all 20 venues |
+| `/api/stream` | GET (SSE) | `?match_id=3749358&speed=10` | Server-Sent Events — streams match events in real-time |
 
 ### Example
 ```bash
@@ -204,26 +215,33 @@ epl-pipeline/
 │   ├── is_matchday.py              # Matchday-aware scheduling check
 │   ├── export_live_json.py         # Gold → dashboard JSON
 │   ├── export_quality.py           # Quality metrics → JSON
+│   ├── export_weather_json.py      # Weather Gold → dashboard JSON
+│   ├── export_stream_events.py     # StatsBomb events → SSE replay JSON
+│   ├── ingest_weather.py           # Open-Meteo API → 20 stadiums
+│   ├── stadium_coordinates.json    # All 20 EPL stadium lat/lon
 │   └── live_common.py              # Shared utilities
 │
 ├── dbt/                            # SQL transformations (dbt-duckdb)
 │   ├── models/
-│   │   ├── staging/                # 🥈 Silver layer (5 views)
+│   │   ├── staging/                # 🥈 Silver layer (6 views)
 │   │   │   ├── stg_matches.sql
 │   │   │   ├── stg_standings.sql
 │   │   │   ├── stg_top_scorers.sql
-│   │   │   ├── stg_live_matches.sql    # Dedup via ROW_NUMBER()
-│   │   │   ├── stg_live_standings.sql  # Dedup via ROW_NUMBER()
-│   │   │   └── schema.yml             # 6 sources, 5 models, all columns documented
-│   │   └── mart/                   # 🥇 Gold layer (9 tables + 1 incremental)
+│   │   │   ├── stg_live_matches.sql        # Dedup via ROW_NUMBER()
+│   │   │   ├── stg_live_standings.sql      # Dedup via ROW_NUMBER()
+│   │   │   ├── stg_stadium_weather.sql     # Latest weather per stadium
+│   │   │   └── schema.yml                  # 7 sources, 6 models, all columns documented
+│   │   └── mart/                   # 🥇 Gold layer (11 tables + 1 incremental)
 │   │       ├── mart_league_table.sql
 │   │       ├── mart_live_league_table.sql
 │   │       ├── mart_live_matches.sql
 │   │       ├── mart_recent_results.sql     # Incremental
 │   │       ├── mart_top_scorers.sql
+│   │       ├── mart_scd1_matches.sql       # SCD Type 1 (upsert)
 │   │       ├── mart_scd2_standings.sql     # SCD Type 2
 │   │       ├── mart_points_race.sql        # Cumulative metrics
 │   │       ├── mart_rolling_form.sql       # Rolling windows
+│   │       ├── mart_stadium_weather.sql    # Weather + pitch conditions
 │   │       ├── dim_teams.sql               # Kimball dimension
 │   │       ├── dim_matchdays.sql           # Schedule dimension
 │   │       └── schema.yml                  # All models + columns documented
@@ -233,15 +251,16 @@ epl-pipeline/
 │   ├── dbt_project.yml
 │   └── profiles.yml                # Local (DuckDB) target
 │
-├── airflow/dags/                   # Orchestration (5 active DAGs)
+├── dags/                           # Orchestration (6 active DAGs)
 │   ├── live_poll_15m.py            # ⚡ 15-min + matchday-aware ShortCircuit
 │   ├── hourly_refresh.py           # 🔄 Hourly pipeline
 │   ├── dbt_transform.py            # 🔧 30-min dbt runs
 │   ├── daily_reconcile.py          # 🌙 2 AM full rebuild
-│   └── ingest_epl_local.py         # 📥 6 AM StatsBomb refresh
+│   ├── ingest_epl_local.py         # 📥 6 AM StatsBomb refresh
+│   └── weather_ingest.py           # 🌤️ 30-min stadium weather
 │
 ├── dashboard/                      # Next.js 14 + TypeScript + Tailwind
-│   ├── app/                        # 9 pages (App Router)
+│   ├── app/                        # 11 pages (App Router)
 │   │   ├── page.tsx                # League table
 │   │   ├── race/page.tsx           # Points race chart
 │   │   ├── form/page.tsx           # Momentum + SCD2 tracker
@@ -249,9 +268,11 @@ epl-pipeline/
 │   │   ├── results/page.tsx        # Match results
 │   │   ├── scorers/page.tsx        # Top scorers
 │   │   ├── stats/page.tsx          # Team comparisons
+│   │   ├── stream/page.tsx         # SSE match replay + live possession
+│   │   ├── weather/page.tsx        # Stadium weather conditions
 │   │   ├── quality/page.tsx        # Data quality dashboard
 │   │   ├── lineage/page.tsx        # dbt docs embed
-│   │   └── api/                    # 8 REST API routes
+│   │   └── api/                    # 10 REST API routes (incl. SSE)
 │   ├── components/                 # Reusable UI (Navigation, TeamBadge, etc.)
 │   └── lib/                        # Data fetching + types
 │
@@ -265,7 +286,7 @@ epl-pipeline/
 
 ## 🧪 Data Quality
 
-### dbt Tests (29 assertions)
+### dbt Tests (37 assertions)
 - **Uniqueness**: All primary keys (match_id, team_name, player_id)
 - **Not-null**: Critical fields across all layers
 - **Source freshness**: 1h warn / 4h error SLAs on live tables

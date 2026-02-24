@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DataSourceBadge from "@/components/DataSourceBadge";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
@@ -86,6 +87,11 @@ export default function StatsPage() {
             <p className="text-gray-400 text-sm">2025-26 · Team Performance Analysis</p>
           </div>
         </div>
+        <DataSourceBadge
+          pattern="Kimball Dimension"
+          source="Gold: dim_teams + mart_live_league_table"
+          explanation="Kimball dimension modeling — dim_teams classifies all 20 teams into tiers (Title Contender, European, Mid-table, Relegation Zone) with conformed attributes. Radar charts pull from multiple fact tables joined through this shared dimension, enabling cross-metric team comparisons."
+        />
       </div>
 
       {/* Team selector */}

@@ -4,6 +4,7 @@ import fs from "fs";
 import { getQualificationZone } from "@/lib/data";
 import FormBadges from "@/components/FormBadges";
 import TeamBadge from "@/components/TeamBadge";
+import DataSourceBadge from "@/components/DataSourceBadge";
 
 export const revalidate = 300;
 
@@ -65,6 +66,11 @@ export default async function LeagueTablePage() {
             <p className="text-gray-400 text-sm">2025-26 Season · {seasonLabel} · Live from Pipeline</p>
           </div>
         </div>
+        <DataSourceBadge
+          pattern="Fact Table"
+          source="Gold: mart_live_league_table → stg_live_standings → raw.live_standings"
+          explanation="Aggregated fact table in the Gold layer. Raw API snapshots (append-only Bronze) are deduplicated in Silver via ROW_NUMBER() OVER (PARTITION BY team_name ORDER BY ingested_at DESC), then enriched with derived metrics (win rate, PPG, points %). Full medallion: Bronze → Silver → Gold."
+        />
       </div>
 
       <div className="flex items-center justify-between mb-4">
