@@ -378,6 +378,12 @@ epl-pipeline/
 - [x] One-command setup (Makefile)
 - [x] 150+ columns fully documented
 
+## ☁️ Cloud Version
+
+Looking for the serverless AWS version of this pipeline? Check out the cloud repo:
+
+**[EPL Cloud Analytics Platform](https://github.com/StarLord598/epl-pipeline-cloud)** — Same data, fully serverless on AWS (Lambda, S3, CloudFront, Terraform). Live dashboard at [andres-alvarez-de-cloud-epl-analytics.vercel.app](https://andres-alvarez-de-cloud-epl-analytics.vercel.app).
+
 ## 📝 License
 
 [MIT](LICENSE)
@@ -386,5 +392,3 @@ epl-pipeline/
 
 *Built by [Andres Alvarez](https://github.com/StarLord598) — Data Engineering Portfolio Project*
 *Pipeline automation by [Rocket 🦝](https://github.com/rocket-racoon-tech-bot)*
-
-- TEST
